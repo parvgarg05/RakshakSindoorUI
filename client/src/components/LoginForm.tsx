@@ -12,9 +12,10 @@ interface LoginFormProps {
   language: Language;
   onLogin: (username: string, password: string, rememberMe: boolean) => void;
   onBack?: () => void;
+  onSwitchToSignup?: () => void;
 }
 
-export default function LoginForm({ role, language, onLogin, onBack }: LoginFormProps) {
+export default function LoginForm({ role, language, onLogin, onBack, onSwitchToSignup }: LoginFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -78,15 +79,23 @@ export default function LoginForm({ role, language, onLogin, onBack }: LoginForm
               {getTranslation(language, 'rememberMe')}
             </Label>
           </div>
-          <div className="flex gap-2">
-            {onBack && (
-              <Button type="button" variant="outline" onClick={onBack} className="flex-1" data-testid="button-back">
-                Back
-              </Button>
-            )}
-            <Button type="submit" className="flex-1" data-testid="button-login-submit">
+          <div className="flex flex-col gap-2">
+            <Button type="submit" className="w-full" data-testid="button-login-submit">
               {getTranslation(language, 'login')}
             </Button>
+            
+            <div className="flex gap-2">
+              {onBack && (
+                <Button type="button" variant="outline" onClick={onBack} className="flex-1" data-testid="button-back">
+                  Back
+                </Button>
+              )}
+              {onSwitchToSignup && (
+                <Button type="button" variant="ghost" onClick={onSwitchToSignup} className="flex-1" data-testid="button-switch-to-signup">
+                  Create Account
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </CardContent>

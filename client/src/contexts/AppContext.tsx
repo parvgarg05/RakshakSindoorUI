@@ -5,6 +5,7 @@ import { settingsStore, userStore } from '@/lib/storage';
 interface User {
   id: string;
   username: string;
+  displayName?: string;
   role: 'soldier' | 'civilian';
   language: Language;
 }

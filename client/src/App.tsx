@@ -6,10 +6,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import LandingPage from '@/pages/landing';
 import LoginPage from '@/pages/login';
+import SignupPage from '@/pages/signup';
 import SoldierDashboard from '@/pages/soldier-dashboard';
 import CivilianDashboard from '@/pages/civilian-dashboard';
 
-type View = 'landing' | 'soldier-login' | 'civilian-login' | 'soldier-dashboard' | 'civilian-dashboard';
+type View = 'landing' | 'soldier-login' | 'civilian-login' | 'soldier-signup' | 'civilian-signup' | 'soldier-dashboard' | 'civilian-dashboard';
 
 function AppContent() {
   const { user, logout } = useApp();
@@ -18,7 +19,7 @@ function AppContent() {
   useEffect(() => {
     if (user) {
       setView(user.role === 'soldier' ? 'soldier-dashboard' : 'civilian-dashboard');
-    } else if (view !== 'landing' && view !== 'soldier-login' && view !== 'civilian-login') {
+    } else if (view !== 'landing' && view !== 'soldier-login' && view !== 'civilian-login' && view !== 'soldier-signup' && view !== 'civilian-signup') {
       setView('landing');
     }
   }, [user]);
@@ -48,6 +49,7 @@ function AppContent() {
           role="soldier"
           onBack={() => setView('landing')}
           onLoginSuccess={handleLoginSuccess}
+          onSwitchToSignup={() => setView('soldier-signup')}
         />
       )}
       {view === 'civilian-login' && (
@@ -55,6 +57,23 @@ function AppContent() {
           role="civilian"
           onBack={() => setView('landing')}
           onLoginSuccess={handleLoginSuccess}
+          onSwitchToSignup={() => setView('civilian-signup')}
+        />
+      )}
+      {view === 'soldier-signup' && (
+        <SignupPage
+          role="soldier"
+          onBack={() => setView('landing')}
+          onSignupSuccess={handleLoginSuccess}
+          onSwitchToLogin={() => setView('soldier-login')}
+        />
+      )}
+      {view === 'civilian-signup' && (
+        <SignupPage
+          role="civilian"
+          onBack={() => setView('landing')}
+          onSignupSuccess={handleLoginSuccess}
+          onSwitchToLogin={() => setView('civilian-login')}
         />
       )}
       {view === 'soldier-dashboard' && (
