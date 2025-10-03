@@ -1,0 +1,140 @@
+# Replit AI Agent Prompt — UI/UX FRONTEND for **Rakshak Sindoor**
+
+**Goal for the Replit AI agent:**
+Design and produce a complete, production-quality, **frontend UI/UX** for *Rakshak Sindoor* — a secure, offline-first, multi-purpose web app dedicated to the Indian Army & Indian government to enable secured communication between soldiers and civilians in Kashmir. The deliverable must be a single-page React app (or React + small routing) using TailwindCSS and modern best practices that runs fully in the browser and is **responsive** (mobile-first), visually outstanding (hackathon-winning quality), and compatible across Android (via PWA/webview) and macOS browsers. Focus exclusively on the **UI/UX frontend** (no backend required) but include realistic client-side code that simulates full functionality offline using local persistence (IndexedDB or localStorage) and mock data.
+
+---
+
+## Non-functional requirements (must-haves)
+
+1. **Offline-first**: App must work completely offline. Implement a Service Worker (PWA) and use IndexedDB (or localStorage with abstraction) to persist data (users, messages, notifications, communities, map markers, evacuation zones). Include a toggle to simulate `Online/Offline` for testing.
+2. **Single codebase, React + Tailwind**: Provide a clean component structure. Default export a React component for the main app. Use Tailwind classes for styling. Keep components modular and documented.
+3. **Accessible & performant**: Keyboard navigable, ARIA attributes where needed, optimized bundle size and lazy-loading for large components (map, charts).
+4. **Simulated secure messaging**: Implement client-side encryption/decryption UI flows (simulate encryption). Use an easy-to-follow reversible code-cipher module (e.g., AES-js stub or custom symmetric cipher wrapper) to demonstrate the encryption UX. Store encrypted messages in IndexedDB and show translation/decode UI.
+5. **Maps**: Integrate Google Maps JS SDK where possible; include a graceful fallback map component (Leaflet with offline tile placeholder) so the UI looks complete offline. Provide clear placeholder instructions in code for adding a real Google Maps API key. Map interactions required: location selector, add / select hotspots (S.O.S.), mark evacuation zones, show evacuation routes, mark medical hubs, nearest route calculations (simulated), and region-based community clustering.
+6. **Multi-language**: UI supports **Hindi, English, Urdu, Kashmiri**. Provide a translation JSON structure and implement a language switcher that toggles UI text instantly. Provide examples of soldier-set messages in code-language that civilians can translate via the translation control.
+7. **Two separate portals**: Soldier and Civilian windows with separate dashboards, role-based UI controls, and visually distinct branding (soldier: tactical/authoritative; civilian: warm/clear). Login flows for both (username/password) with 'remember me' (store credentials securely in IndexedDB/localStorage). Soldier account must have additional master controls (emergency override for notifications, edit important channel, push alerts etc.).
+8. **Security UX**: Emphasize that sensitive operations (e.g., soldier emergency overrides, delete channel) require explicit confirmation and 2-step UI (e.g., input code phrase + toggle). Do not display real sensitive info on frontpage; simulate sensitive data only inside the secure portals.
+9. **Mesh network & community chat**: Simulate a local mesh community network UI where civilians can create location-based communities, create/delete posts, comment, and chat. Chats should appear in a localized map cluster and sorted by distance from the user's selected location (simulate geo-distance calculation offline).
+10. **Notifications**: Provide two notification icons (one global top-right controlled by soldiers; one civilian-specific for chats). Notification center must prioritize messages (Threats > Evacuations > SOS > General). Soldier role can pin/priority-flag notifications; civilians can see but not override soldier-critical notifications.
+11. **Frontpage & dashboard stats**: Frontpage should show interactive stats (cards and charts) reflecting app activity (number of active communities, active hotposts, latest soldier alerts). Charts can be lightweight and use Recharts or a hand-rolled svg chart. All data updates should be reflected in the UI from local store.
+12. **Mobile-first & PWA-ready**: Implement responsive breakpoints, touch-friendly controls, large tappable map buttons, and a PWA manifest stub.
+13. **Design system & components**: Provide a small design system file (colors, spacing, typography scale), reusable components (Button, Card, Modal, Toast, MapToolbar, LanguageSwitcher, RoleSwitcher, NotificationCenter, EncryptedMessageViewer, CommunityCard), and examples of usage.
+14. **Demo data & scenario scripts**: Include a script (client-side) to seed mock data for a typical emergency scenario (soldier sends evacuation alert, four civilians in different locations create posts, a hotspot SOS is triggered). This enables the app to be fully demonstrable offline.
+
+---
+
+## Functional UI pages / views (deliver every item below in the frontend)
+
+1. **Landing / Frontpage**
+
+   * Clean modern design with three main elements: Location selector (mini map), Language selector (EN/HIN/URD/KSH), and two big tiles/buttons: "Soldier Portal" and "Civilian Portal".
+   * A top-right soldier-controlled Notification icon and a separate civilian chat notification icon.
+   * A prominent "Important Channel" feed area (read-only on Frontpage) that lists soldier-set important messages in code-language. Includes a translator control to decode to the chosen UI language.
+   * Statistical dashboard: 4 summary cards (Active Alerts, Active Communities, SOS hotspots, Evacuation Zones) and a small chart showing activity over the last 24 hours (simulated).
+   * Footer with accessibility controls and offline status indicator.
+
+2. **Login flows** (for both Soldier and Civilian)
+
+   * Username & password fields + 'Remember me'.
+   * Local validation and storage (simulate secure storage). On first-run seed a demo soldier user and demo civilians.
+   * After login, route to the proper dashboard.
+
+3. **Soldier Dashboard**
+
+   * Map-focused layout with expandable side panel (left) for controls and right panel for activity feed.
+   * Controls for: Send Emergency Alert (choose severity and target regions), Create/Edit/Delete Important Channel content (in code-language), Place SOS hotspot markers, Assign evacuation zones (draw polygon), designate medical hubs (pin), push threat signals, and Lock/Unlock notification center.
+   * Encryption composer: UI to write messages in plain text, encrypt into code-language, and broadcast to region/community or individual civilian.
+   * Notification management UI with priority ordering and manual pin.
+   * Activity log (audit trail) showing soldier actions (local only).
+
+4. **Civilian Dashboard**
+
+   * Community mesh view (map + communities list). Ability to: view & join communities by area, create/delete posts, comment, start chat threads with other civilians nearby, and view soldier alerts.
+   * Chat UI: support encrypted code-language messages from soldiers; civilians can request translation (decrypt) to any of the 4 languages.
+   * Evacuation guidance panel: nearest evacuation zones, best escape routes (simulated route visuals), nearest medical hubs with arrival ETA simulation. Provide a "Follow Soldier" quick-action for guided evacuation (soldier can set a route and civilians can opt-in).
+   * Mesh network status indicator and local message sync controls.
+
+5. **Notifications center**
+
+   * Unified modal for soldiers and civilians with different permitted controls: soldiers can modify and prioritize; civilians can only acknowledge. Each notification shows: severity, type, region, timestamp, originating soldier ID.
+
+6. **Encrypted Messaging & Translator**
+
+   * Message composer for soldiers to write and encrypt messages into code-language. Civilians and soldiers see messages in encrypted form by default with a translator toggle to decrypt.
+   * Provide UI for selecting translation target language (EN/HIN/URD/KSH) that instantly translates decrypted plaintext UI strings.
+
+7. **SOS hotspots & evacuation tools**
+
+   * Soldier can select map hotspots and hit "Send SOS to this hotspot"—this creates highest-priority notification for that geo area.
+   * Civilians see SOS hotspots visually on their map and can report status (Safe/Need Help). Civilians can request direct soldier guidance for route.
+
+8. **Admin/Settings**
+
+   * Role switching, language settings, offline data export/import (JSON), and UI theme toggle (classic / modern / professional). Provide branding skins: soldier skin (dark tactical) and civilian skin (warm neutral).
+
+---
+
+## UI/UX details & micro-interactions (high priority)
+
+* **Hero animations**: subtle entrance animations for dashboard cards and map toolbars (Framer Motion is allowed but optional). Keep animations tasteful and non-distracting.
+* **Toasts & confirmations**: every destructive action (delete channel, delete post) requires a confirmation modal.
+* **Prioritized notification badge**: show numeric priority counts and color-coded severity.
+* **Map selection UX**: long-press to add hotspot (mobile), tap to view details, pinch to zoom, drag to pan.
+* **Message encryption UX**: show a small lock icon and a tooltip explaining the message is encrypted. When soldier composes, offer a "preview decrypted" for soldiers only.
+* **Language toggle**: persisted per user; switching updates all UI labels and seeded mock content.
+* **Guided evacuation overlay**: when a soldier shares a route, show a step-by-step overlay with actionable buttons (Start Navigation (simulated), View Route, Message Soldier).
+
+---
+
+## Deliverables required from Replit AI agent (explicit)
+
+1. A single React project folder structure (index.html, main React component files, Tailwind config, service worker, manifest stubs). If the agent cannot create files, provide a single exportable `App.jsx` component and supporting component files in code blocks.
+2. Fully functioning UI: Login, both dashboards, maps with interactive hotspots (simulated), encrypted messaging UI, notifications, communities, and mock-data seeding script.
+3. Clear inline comments and README instructions in the code explaining how to run the app on Replit, where to paste Google Maps API key (if desired), and how to test offline behavior.
+4. A seeded demo scenario that runs on first open to demonstrate all features (soldier alert -> civilians react -> SOS hotspot -> evacuation route -> chat messages).
+5. A short design-system file (JS/JSON) and component list describing colors/spacing/typography.
+6. A PWA Service Worker skeleton and guidance on turning this into an installable PWA on Android/macOS.
+
+---
+
+## Implementation suggestions (technical notes for the agent)
+
+* Use **React functional components** + hooks. Prefer `useEffect`, `useState`, and a small context provider for app-wide state (AuthContext, LanguageContext, NotificationContext, MapContext).
+* Use **localForage** (or a tiny IndexedDB wrapper) for persistence. If libraries are not available on Replit agent, provide a small wrapper around `indexedDB` or localStorage fallback.
+* Simulate routing using a small router (react-router) or state-based view switching.
+* For encryption demo, implement a deterministic reversible cipher module (for example: symmetric-key XOR cipher with base64 output or a lightweight AES-js usage comment). Provide UI to change the cipher key in soldier mode (stored locally).
+* For maps: include placeholders and clear `// TODO: add real Google Maps API KEY` comments. Provide working Leaflet fallback so the user can see map UI offline.
+* For charts: lightweight SVG charts or Recharts; include component that reads from app store and updates when mock data changes.
+* For translations: use a simple `i18n` JSON object and helper function `t(key)` that maps UI keys to selected language.
+
+---
+
+## UX priorities & security notes for the reviewers
+
+* Emphasize role separation and soldier authority in the UI; civilians must never see sensitive logs or controls.
+* Keep all sensitive or real-world security mechanisms as *simulated UX only*. Add clear comments in README stating: **this frontend is a demonstration and must not be used for real-world secure communications without vetted backend services and audited encryption**.
+
+---
+
+## Acceptance criteria (how I will judge the output)
+
+* The produced Replit project (or single file export) boots in the browser and demonstrates: login, soldier dashboard with alert creation & important channel, civilian dashboard with communities and chats, map with hotspots and evacuation zones, encryption/decryption UI, notification centers, language switcher, and offline-first behavior (service worker + persisted local data). All interactions are UI-complete and demonstrable without any server.
+* The UI looks modern, professional, mobile-first, and visually outstanding (use of Tailwind, good typography, spacing, and icons).
+* The code includes instructions and a seeded demo scenario that showcases the full app capability.
+
+---
+
+## Tone for visuals & copy (design brief)
+
+* **Soldier portal**: authoritative, tactical—use saturated dark blues, olive greens, strong contrast, monospaced accents for code-language previews.
+* **Civilian portal**: calming, clear—warm neutrals, rounded cards, large readable typography.
+* **Frontpage**: elegant professional: classic + modern — minimal chrome, clear call-to-action tiles, big readable buttons.
+
+---
+
+## Final note to the Replit AI agent
+
+Produce the *full frontend scaffold and implementation* as described. If you cannot produce multiple files in the environment, place the entire app into a single `App.jsx` export with clear comments and instructions for creating `index.html`, `tailwind.config.js`, and service worker files. Seed demo data and make the app fully interactive offline. Document where a developer would add Google Maps API keys and backend endpoints if they later integrate.
+
+**Begin now**: generate the React + Tailwind frontend code and project structure meeting the above acceptance criteria, and include a clear README (either as a file or as top comments) describing how to run the app on Replit and how to test offline behavior and the demo scenario.
