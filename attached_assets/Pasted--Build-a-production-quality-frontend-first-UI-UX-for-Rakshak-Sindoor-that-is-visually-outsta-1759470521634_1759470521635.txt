@@ -1,0 +1,127 @@
+
+Build a production-quality, **frontend-first** UI/UX for *Rakshak Sindoor* that is visually outstanding (hackathon-winning grade), fully offline-capable, fully responsive, and feature-complete. Focus on exceptional soldier and civilian portals with enhanced design, left-side navigation bars, clear role separation, and synchronized controls (soldier controls affect civilian view). Provide a complete React + Tailwind frontend scaffold with mock-data seeding, PWA readiness (service worker skeleton), IndexedDB/local persistence, and clear README instructions.
+
+---
+
+## Key enhancements requested (must implement)
+
+1. **Enhanced soldier & civilian portals**
+
+   * Give both portals an upgraded, polished visual design and distinctive branding (soldier: tactical authoritative — dark/olive theme; civilian: warm, approachable — soft neutrals). Use high-quality layout, spacing, typography, and iconography.
+   * Add a **left sidebar navigation** for both portals with clear, grouped menu items (Map / Alerts / Important Channel / Messages / Communities / SOS & Hotspots / Evacuation Tools / Medical Hubs / Notifications / Settings / Logout). Sidebars should collapse to icons on small screens.
+   * Ensure all activities are **controlled by the Soldier portal** (only soldiers can create/modify/delete alerts, important channel entries, and lock/override notification behavior). Changes made in Soldier portal must **immediately reflect** in Civilian portal UI and data (via shared local store and event system) so civilians always see soldier-sent updates.
+
+2. **Frontpage location selection & app behavior by location**
+
+   * On first open, and on the frontpage, allow the user to **set/select their location** (via mini-map, typed location or simulated GPS). The selected location determines: nearest communities, nearest evacuation zones and medical hubs, which soldier alerts are relevant, which communities are suggested, and default map center. Implement a location-change flow to re-seed or filter UI data accordingly.
+
+3. **Signup & persistent login**
+
+   * Add **Signup** flows for both Soldier and Civilian accounts (username, password, display name, role selection for soldier signup only allowed when a demo soldier code is entered or in 'demo mode').
+   * Save user credentials securely in local persistence (IndexedDB or localStorage with warnings). Implement 'Remember me' and auto-login on returning visits.
+   * Provide client-side validation and password strength indicator. Allow password reset through local data (simulate via security question or local reset token since there is no backend).
+
+4. **Sync & control behavior**
+
+   * Soldier actions (alerts, important channel edits, hotspot placements, route shares) must update a shared local store and dispatch events so Civilian dashboards update in real-time (within the single-browser/offline environment). Implement an event bus or Context-based pub/sub to simulate mesh updates across tabs/devices.
+
+5. **Responsive & accessible**
+
+   * All UI must be mobile-first, touch-friendly, and accessible (keyboard navigation, ARIA where needed). Sidebars collapse on narrow screens to bottom nav patterns or floating FABs for quick actions.
+
+6. **Complete functionality**
+
+   * Ensure every feature is UI-complete and demonstrable offline: login/signup, soldier controls, civilian communities, encrypted messaging with translation, SOS hotspots, evacuation zones/routes, medical hubs, notifications, notification prioritization and soldier override, map interactions, language switcher (EN/HIN/URD/KSH), and data export/import.
+
+---
+
+## Precise Functional Requirements (for the UI)
+
+* **Landing / Frontpage**
+
+  * Clear location selector (mini-map + address input + "use my device location" simulation). Location choice filters and seeds app data.
+  * Language selector (EN/HIN/URD/KSH) and role selection tiles: "Soldier Portal" and "Civilian Portal" plus Sign Up & Login quick links.
+  * Important Channel preview box controlled by soldiers (show encrypted entries; allow translation control). No sensitive details are shown on the frontpage beyond this preview.
+  * Summary stats cards & a small activity chart (updates from the local store relative to chosen location).
+
+* **Signup / Login flows**
+
+  * Signup forms for Soldier and Civilian with username, password, display name, location (default from frontpage), and optional soldier code for soldier signup (for demo only). Store credentials locally and allow subsequent login.
+  * Login form with 'Remember me', biometric simulation toggle, and 'Forgot password' flow (local reset).
+
+* **Soldier Portal (enhanced)**
+
+  * Left sidebar navigation (collapsible). Main working area is a large interactive map + panels.
+  * Controls exclusive to Soldiers: Create/Edit/Delete Important Channel messages (in code-language), Broadcast Emergency Alert (severity + region + expiry), Place/Remove SOS hotspots, Draw/Assign Evacuation Zones (polygon), Add/Remove Medical Hubs, Lock/Unlock Notifications, Prioritize/pin notifications, and Force-Refresh civilian views (simulated push).
+  * Encryption composer with key management (local). Show message in encrypted preview. Provide translation preview for soldiers.
+  * Audit log panel for soldier actions (local only) with timestamps.
+
+* **Civilian Portal (enhanced)**
+
+  * Same left sidebar nav tailored to civilian (some items read-only). Map-centered with community list, chat mesh widget, posts feed, and evacuation guidance panel.
+  * Communities: create/join location-based groups, create/delete posts, comment, and chat. Posts are geo-tagged and listed by proximity to user's selected location.
+  * Chat UI: local mesh simulation where civilians nearby can message each other. Show encrypted soldier messages with decrypt/translate buttons (EN/HIN/URD/KSH). Civilians can request soldier guidance via "Request Guide" action on SOS hotspots.
+  * Evacuation guidance: nearest evacuation zones, suggested escape route (simulated), nearest medical hubs and ETA simulation. "Follow Soldier" opt-in to show soldier-provided route overlay.
+
+* **Notifications**
+
+  * Two notification icons in the top-right: Global (soldier-controlled critical notifications) and Civilian Chat Notifications (for message activity). Global icon only fully controllable by soldiers; civilians can acknowledge but not modify.
+  * Prioritization: color-coded badges and ordering (Threat > Evacuation > SOS > General). Soldiers can pin and reorder.
+
+* **Shared functionality**
+
+  * Language switching across whole UI.
+  * Offline-first persistence and seeded demo scenario for immediate testing.
+  * Export/Import local data JSON button for sharing or backup.
+
+---
+
+## Design & Microinteraction Enhancements (visual brief)
+
+* **Left sidebar**: refined with grouped sections and context-aware icons, active route highlight, collapse/expand animation, and compact icon-only mode on mobile.
+* **Top bar**: small compact topbar with location chip, language switcher, notification icons, profile avatar, and quick-action FAB.
+* **Map controls**: floating action toolbar on map for Add Hotspot, Draw Evac Zone, Add Medical Hub, SOS, Zoom Home.
+* **Cards & data viz**: polished cards for KPIs, activity sparkline, and an interactive timeline for alerts.
+* **Soldier UI elements**: monospaced code previews for encrypted messages, prominent red/amber/green severity swatches, and confirmation modals with two-step verification UX for sensitive actions.
+* **Civilian UI elements**: friendly rounded cards, large tappable comment/actions, clear progress/ETA indicators for routes.
+
+---
+
+## Technical Deliverables (explicit, must deliver)
+
+1. Complete React project scaffold (or a single combined `App.jsx` + helper components if multi-file not possible) implementing all above features with clear inline comments.
+2. Tailwind setup and a small design-system file (JS/JSON) listing color tokens, typography scale, spacing and component variants for Soldier and Civilian skins.
+3. Service Worker skeleton (PWA), manifest stub, and instructions for testing offline mode and installing as PWA.
+4. IndexedDB/localForage wrapper or localStorage fallback for persistence. Provide helper functions for user management, messages, notifications, communities, and map markers.
+5. Mock-data seeder that populates the store with: demo soldier account, 4 demo civilian accounts across Kashmir locations, several communities, evacuation zones, medical hubs, and an initial soldier alert — all tied to the frontpage location selection.
+6. Encryption module (deterministic reversible demo cipher) with UI integration for composing, encrypting, storing and decrypting messages. Clear README warning: demo-only; not for real secure comms.
+7. Left sidebar navigation for both portals with working routing/state transitions.
+8. Full Signup and Login flows with persistent credential storage, remember-me, and auto-login.
+9. README with: how to run on Replit, where to add a Google Maps API key if desired (clear TODO), how to test offline behavior, how to seed demo data, and security caveats.
+
+---
+
+## Acceptance criteria (how I will evaluate the Replit AI agent output)
+
+* The produced UI boots in-browser and demonstrates: Signup & Login for Soldier and Civilian, upgraded Soldier & Civilian portals with left sidebars, soldier-only controls that reflect instantly in civilian view, frontpage location-based behavior, map with hotspots & evacuation tools, encrypted messaging + translator, prioritized notifications, communities & chat mesh, offline persistence and seeded demo scenario.
+* UI is highly polished, responsive, accessible, and uses Tailwind with a coherent design system.
+* Code includes clear comments and a README showing how to run/test everything on Replit and how to switch location/language and trigger the demo scenario.
+
+---
+
+## Implementation guidance for the agent (tips)
+
+* Use React functional components and Context providers (Auth, Language, Notification, Map, DataStore).
+* Use a local persistence wrapper (localForage recommended) but provide an IndexedDB fallback that works in CodeSandbox/Replit environments.
+* Simulate mesh updates across tabs by using the `storage` event or an in-memory event bus.
+* For maps: provide a working Leaflet fallback UI and map tiles placeholder so the map UI is interactive offline. Add clear comments where to insert a Google Maps key for advanced routing.
+* Provide small utility modules: `i18n.js` for translations, `cipher.js` for demo encryption, `store.js` for data persistence, `seeder.js` for demo scenario.
+
+---
+
+## Final note 
+
+This is a visual-first, UX-critical project: prioritize polished UI, responsive behavior, and intuitive soldier-to-civilian control flows. Produce code that a front-end developer can run immediately on Replit, test offline, and demo at a hackathon. Emphasize documentation and demo seeding so reviewers can verify the requested features without backend services.
+
+**Begin implementing the enhanced UI/UX scaffold and code now.**
+
