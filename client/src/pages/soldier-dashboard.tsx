@@ -1,33 +1,29 @@
 import { useState } from 'react';
-import { Shield, Send, MapPin, Lock, Bell, LogOut, Users, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import MapView from '@/components/MapView';
+import { Route, Switch } from 'wouter';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import SoldierSidebar from '@/components/SoldierSidebar';
 import NotificationBadge from '@/components/NotificationBadge';
-import NotificationCenter from '@/components/NotificationCenter';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useApp } from '@/contexts/AppContext';
-import { getTranslation } from '@/lib/i18n';
-import { encryptMessage } from '@/lib/encryption';
-import { useToast } from '@/hooks/use-toast';
+import NotificationCenter from '@/components/NotificationCenter';
+import SoldierMapView from '@/components/soldier/SoldierMapView';
+import SoldierAlerts from '@/components/soldier/SoldierAlerts';
+import SoldierChannel from '@/components/soldier/SoldierChannel';
+import SoldierMessages from '@/components/soldier/SoldierMessages';
+import SoldierSOS from '@/components/soldier/SoldierSOS';
+import SoldierEvacuation from '@/components/soldier/SoldierEvacuation';
+import SoldierMedical from '@/components/soldier/SoldierMedical';
+import SoldierCivilians from '@/components/soldier/SoldierCivilians';
+import SoldierNotifications from '@/components/soldier/SoldierNotifications';
+import SoldierControls from '@/components/soldier/SoldierControls';
+import SoldierAudit from '@/components/soldier/SoldierAudit';
+import SoldierSettings from '@/components/soldier/SoldierSettings';
 
 interface SoldierDashboardProps {
   onLogout: () => void;
 }
 
 export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
-  const { language, user } = useApp();
-  const { toast } = useToast();
-  const [message, setMessage] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const mockMarkers = [
-    { position: [34.0837, 74.7973] as [number, number], type: 'sos' as const, label: 'SOS - Sector 7' },
-    { position: [34.0937, 74.8073] as [number, number], type: 'evacuation' as const, label: 'Evac Zone Alpha' },
-    { position: [34.0737, 74.7873] as [number, number], type: 'medical' as const, label: 'Medical Hub' },
-  ];
 
   const mockNotifications = [
     {
@@ -40,173 +36,42 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
     },
   ];
 
-  const handleSendAlert = () => {
-    if (!message.trim()) return;
-    
-    const encrypted = encryptMessage(message);
-    console.log('Sending encrypted alert:', encrypted);
-    
-    toast({
-      title: "Alert Sent",
-      description: "Emergency alert broadcasted to all civilians",
-    });
-    
-    setMessage('');
+  const style = {
+    '--sidebar-width': '16rem',
+    '--sidebar-width-icon': '3rem',
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background dark">
-      <header className="border-b bg-sidebar p-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Shield className="h-6 w-6 text-primary" />
-          <div>
-            <h1 className="font-tactical font-bold text-lg">Soldier Command</h1>
-            <p className="text-xs text-muted-foreground">@{user?.username}</p>
-          </div>
+    <SidebarProvider style={style as React.CSSProperties}>
+      <div className="flex h-screen w-full">
+        <SoldierSidebar onLogout={onLogout} />
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <header className="flex items-center justify-between p-3 border-b bg-background/95 backdrop-blur">
+            <SidebarTrigger data-testid="button-sidebar-toggle" />
+            <div className="flex items-center gap-2">
+              <NotificationBadge type="alert" count={3} onClick={() => setShowNotifications(true)} />
+              <LanguageSwitcher />
+            </div>
+          </header>
+          <main className="flex-1 overflow-auto">
+            <Switch>
+              <Route path="/soldier" component={SoldierMapView} />
+              <Route path="/soldier/map" component={SoldierMapView} />
+              <Route path="/soldier/alerts" component={SoldierAlerts} />
+              <Route path="/soldier/channel" component={SoldierChannel} />
+              <Route path="/soldier/messages" component={SoldierMessages} />
+              <Route path="/soldier/sos" component={SoldierSOS} />
+              <Route path="/soldier/evacuation" component={SoldierEvacuation} />
+              <Route path="/soldier/medical" component={SoldierMedical} />
+              <Route path="/soldier/civilians" component={SoldierCivilians} />
+              <Route path="/soldier/notifications" component={SoldierNotifications} />
+              <Route path="/soldier/controls" component={SoldierControls} />
+              <Route path="/soldier/audit" component={SoldierAudit} />
+              <Route path="/soldier/settings" component={SoldierSettings} />
+              <Route component={SoldierMapView} />
+            </Switch>
+          </main>
         </div>
-        <div className="flex items-center gap-2">
-          <NotificationBadge type="alert" count={3} onClick={() => setShowNotifications(true)} />
-          <LanguageSwitcher />
-          <Button variant="outline" size="sm" onClick={onLogout} data-testid="button-logout">
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex-1 flex overflow-hidden">
-        <aside className="w-80 border-r bg-sidebar p-4 space-y-4 overflow-auto">
-          <Card data-testid="card-send-alert">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Send className="h-4 w-4" />
-                {getTranslation(language, 'sendAlert')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Textarea
-                placeholder="Type emergency message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                data-testid="textarea-alert-message"
-              />
-              <div className="flex gap-2">
-                <Button 
-                  className="flex-1" 
-                  onClick={handleSendAlert}
-                  data-testid="button-send-encrypted"
-                >
-                  <Lock className="h-4 w-4 mr-2" />
-                  Send Encrypted
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button 
-                variant="destructive" 
-                className="w-full justify-start"
-                data-testid="button-mark-sos"
-              >
-                <AlertTriangle className="h-4 w-4 mr-2" />
-                Mark SOS Hotspot
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                data-testid="button-create-evac"
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                Create Evac Zone
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                data-testid="button-broadcast"
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                Broadcast Alert
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Activity Log</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Badge variant="destructive">ALERT</Badge>
-                <span className="text-xs text-muted-foreground">5 min ago</span>
-              </div>
-              <p className="text-xs">Evacuation alert sent to Sector 7</p>
-              
-              <div className="flex items-center gap-2 mt-3">
-                <Badge variant="default">SOS</Badge>
-                <span className="text-xs text-muted-foreground">15 min ago</span>
-              </div>
-              <p className="text-xs">SOS marker placed at Dal Lake</p>
-            </CardContent>
-          </Card>
-        </aside>
-
-        <main className="flex-1 p-4">
-          <MapView markers={mockMarkers} height="100%" />
-        </main>
-
-        <aside className="w-80 border-l bg-sidebar p-4 space-y-4 overflow-auto">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Active Operations</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge variant="destructive">THREAT</Badge>
-                  <span className="text-xs">Sector 7</span>
-                </div>
-                <p className="text-sm font-medium">Evacuation in Progress</p>
-                <p className="text-xs text-muted-foreground mt-1">45 civilians evacuating</p>
-              </div>
-
-              <div className="p-3 rounded-md bg-chart-3/10 border border-chart-3/20">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge className="bg-chart-3 text-white">SOS</Badge>
-                  <span className="text-xs">Dal Lake</span>
-                </div>
-                <p className="text-sm font-medium">Medical Assistance</p>
-                <p className="text-xs text-muted-foreground mt-1">Team dispatched</p>
-              </div>
-
-              <div className="p-3 rounded-md bg-chart-2/10 border border-chart-2/20">
-                <div className="flex items-center justify-between mb-2">
-                  <Badge className="bg-chart-2 text-white">SAFE</Badge>
-                  <span className="text-xs">Zone Alpha</span>
-                </div>
-                <p className="text-sm font-medium">120 civilians secured</p>
-                <p className="text-xs text-muted-foreground mt-1">Capacity: 80%</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Connected Civilians
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">247</div>
-              <p className="text-xs text-muted-foreground mt-1">Active in network</p>
-            </CardContent>
-          </Card>
-        </aside>
       </div>
 
       <NotificationCenter
@@ -217,6 +82,6 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
         onAcknowledge={(id) => console.log('Ack:', id)}
         onPin={(id) => console.log('Pin:', id)}
       />
-    </div>
+    </SidebarProvider>
   );
 }

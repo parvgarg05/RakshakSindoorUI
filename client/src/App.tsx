@@ -17,12 +17,8 @@ function AppContent() {
 
   useEffect(() => {
     if (user) {
-      if (user.role === 'soldier') {
-        setView('soldier-dashboard');
-      } else {
-        setView('civilian-dashboard');
-      }
-    } else {
+      setView(user.role === 'soldier' ? 'soldier-dashboard' : 'civilian-dashboard');
+    } else if (view !== 'landing' && view !== 'soldier-login' && view !== 'civilian-login') {
       setView('landing');
     }
   }, [user]);
