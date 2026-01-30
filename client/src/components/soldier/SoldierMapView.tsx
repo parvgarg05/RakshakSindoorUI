@@ -9,6 +9,7 @@ import { useApp } from '@/contexts/AppContext';
 import { getTranslation } from '@/lib/i18n';
 import { encryptMessage } from '@/lib/encryption';
 import { useToast } from '@/hooks/use-toast';
+import { messageStore, markerStore } from '@/lib/storage';
 
 export default function SoldierMapView() {
   const { language } = useApp();
@@ -21,12 +22,35 @@ export default function SoldierMapView() {
     { position: [34.0737, 74.7873] as [number, number], type: 'medical' as const, label: 'Medical Hub' },
   ];
 
-  const handleSendAlert = () => {
+  const handleSendAlert = async () => {
     if (!message.trim()) return;
     const encrypted = encryptMessage(message);
-    console.log('Sending encrypted alert:', encrypted);
+    const id = Date.now().toString();
+    
+    await messageStore.setItem(`alert_${id}`, {
+      id,
+      encrypted,
+      timestamp: new Date().toISOString(),
+      sender: 'Soldier Command',
+      type: 'emergency'
+    });
+
     toast({ title: "Alert Sent", description: "Emergency alert broadcasted to all civilians" });
     setMessage('');
+  };
+
+  const handleMarkSOS = async () => {
+    const id = Date.now().toString();
+    const newMarker = {
+      id,
+      position: [34.0837 + (Math.random() - 0.5) * 0.01, 74.7973 + (Math.random() - 0.5) * 0.01] as [number, number],
+      type: 'sos' as const,
+      label: `SOS Hotspot - Sector ${Math.floor(Math.random() * 10)}`,
+      timestamp: new Date().toISOString()
+    };
+    
+    await markerStore.setItem(`marker_${id}`, newMarker);
+    toast({ title: "SOS Marked", description: "New SOS hotspot added to the tactical map" });
   };
 
   return (
@@ -59,7 +83,7 @@ export default function SoldierMapView() {
             <CardTitle className="text-base">Map Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button variant="destructive" className="w-full justify-start" data-testid="button-mark-sos">
+            <Button variant="destructive" className="w-full justify-start" onClick={handleMarkSOS} data-testid="button-mark-sos">
               <AlertTriangle className="h-4 w-4 mr-2" />
               Mark SOS Hotspot
             </Button>
