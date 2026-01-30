@@ -27,7 +27,6 @@ export default function SoldierSidebar({ onLogout }: SoldierSidebarProps) {
     { title: 'Tactical Map', url: '/soldier', icon: Map },
     { title: 'Active Alerts', url: '/soldier/alerts', icon: AlertTriangle },
     { title: 'Important Channel', url: '/soldier/channel', icon: Radio },
-    { title: 'Messages', url: '/soldier/messages', icon: MessageSquare },
   ];
 
   const managementItems = [

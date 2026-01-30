@@ -26,7 +26,6 @@ export default function CivilianSidebar({ onLogout }: CivilianSidebarProps) {
   const mainItems = [
     { title: 'Map View', url: '/civilian', icon: Map },
     { title: 'Important Channel', url: '/civilian/channel', icon: Radio },
-    { title: 'Communities', url: '/civilian/communities', icon: Users },
     { title: 'Messages', url: '/civilian/messages', icon: MessageSquare },
   ];
 
