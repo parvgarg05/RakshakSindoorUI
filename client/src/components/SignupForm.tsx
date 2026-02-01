@@ -9,7 +9,7 @@ import { getTranslation, type Language } from '@/lib/i18n';
 import { Progress } from '@/components/ui/progress';
 
 interface SignupFormProps {
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
   language: Language;
   onSignup: (username: string, password: string, displayName: string, rememberMe: boolean) => void;
   onBack?: () => void;
@@ -47,7 +47,7 @@ export default function SignupForm({ role, language, onSignup, onBack, onSwitchT
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const passwordStrength = calculatePasswordStrength(password);
-  const isSoldier = role === 'soldier';
+  const isGovernment = role === 'government';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,17 +91,17 @@ export default function SignupForm({ role, language, onSignup, onBack, onSwitchT
   };
 
   return (
-    <Card className={`w-full max-w-md ${isSoldier ? 'border-primary' : ''}`}>
+    <Card className={`w-full max-w-md ${isGovernment ? 'border-primary' : ''}`}>
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          {isSoldier ? (
+          {isGovernment ? (
             <Shield className="h-16 w-16 text-primary" />
           ) : (
             <User className="h-16 w-16 text-primary" />
           )}
         </div>
-        <CardTitle className={isSoldier ? 'font-tactical text-2xl' : 'text-2xl'}>
-          {getTranslation(language, isSoldier ? 'soldierPortal' : 'civilianPortal')}
+        <CardTitle className={isGovernment ? 'font-tactical text-2xl' : 'text-2xl'}>
+          {getTranslation(language, isGovernment ? 'governmentPortal' : 'civilianPortal')}
         </CardTitle>
         <CardDescription>
           Create your account

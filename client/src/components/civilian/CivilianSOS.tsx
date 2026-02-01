@@ -26,11 +26,31 @@ export default function CivilianSOS() {
       });
       setMarkers(allMarkers.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
     };
+
     loadMarkers();
+
+    const handleSosCreated = () => {
+      loadMarkers();
+    };
+
+    const handleSosCleared = () => {
+      setMarkers([]);
+    };
+
+    window.addEventListener('sos:created', handleSosCreated);
+    window.addEventListener('sos:cleared', handleSosCleared);
+
+    const intervalId = window.setInterval(loadMarkers, 3000);
+
+    return () => {
+      window.removeEventListener('sos:created', handleSosCreated);
+      window.removeEventListener('sos:cleared', handleSosCleared);
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full flex flex-col min-h-0">
       <div className="p-6 border-b bg-background/95 backdrop-blur z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -44,8 +64,8 @@ export default function CivilianSOS() {
         <p className="text-muted-foreground">Real-time emergency locations marked by security forces.</p>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        <aside className="w-80 border-r bg-sidebar overflow-auto p-4 space-y-4">
+      <div className="flex-1 min-h-0 w-full flex overflow-hidden">
+        <aside className="w-80 border-r bg-sidebar overflow-auto p-4 space-y-4 min-h-0">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Hotspot List</h2>
           {markers.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-4 italic">No active SOS hotspots nearby.</p>
@@ -74,8 +94,8 @@ export default function CivilianSOS() {
           )}
         </aside>
 
-        <main className="flex-1 relative">
-          <MapView markers={markers} height="100%" />
+        <main className="flex-1 min-h-0 h-full w-full relative">
+          <MapView markers={markers} height="100%" className="h-full w-full" />
         </main>
       </div>
     </div>

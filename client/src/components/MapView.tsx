@@ -11,6 +11,7 @@ interface MapViewProps {
     label?: string;
   }>;
   height?: string;
+  className?: string;
 }
 
 const markerColors = {
@@ -24,7 +25,8 @@ export default function MapView({
   center = [34.0837, 74.7973], 
   zoom = 12, 
   markers = [],
-  height = '400px'
+  height = '400px',
+  className = ''
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -40,11 +42,35 @@ export default function MapView({
 
     mapInstanceRef.current = map;
 
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 0);
+
+    // Ensure map renders correctly after layout
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 0);
+
     return () => {
       map.remove();
       mapInstanceRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize();
+    }, 0);
+  }, [height]);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    // Recalculate size when height changes or component reflows
+    setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize();
+    }, 0);
+  }, [height]);
 
   useEffect(() => {
     if (!mapInstanceRef.current) return;
@@ -65,8 +91,8 @@ export default function MapView({
   return (
     <div 
       ref={mapRef} 
-      style={{ height, width: '100%' }} 
-      className="rounded-md overflow-hidden border"
+      style={{ height, width: '100%', minWidth: '100%' }} 
+      className={`rounded-md overflow-hidden border w-full ${className}`}
       data-testid="map-view"
     />
   );

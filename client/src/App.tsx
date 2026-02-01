@@ -10,7 +10,7 @@ import SignupPage from '@/pages/signup';
 import SoldierDashboard from '@/pages/soldier-dashboard';
 import CivilianDashboard from '@/pages/civilian-dashboard';
 
-type View = 'landing' | 'soldier-login' | 'civilian-login' | 'soldier-signup' | 'civilian-signup' | 'soldier-dashboard' | 'civilian-dashboard';
+type View = 'landing' | 'government-login' | 'civilian-login' | 'government-signup' | 'civilian-signup' | 'government-dashboard' | 'civilian-dashboard';
 
 function AppContent() {
   const { user, logout } = useApp();
@@ -18,14 +18,14 @@ function AppContent() {
 
   useEffect(() => {
     if (user) {
-      setView(user.role === 'soldier' ? 'soldier-dashboard' : 'civilian-dashboard');
-    } else if (view !== 'landing' && view !== 'soldier-login' && view !== 'civilian-login' && view !== 'soldier-signup' && view !== 'civilian-signup') {
+      setView(user.role === 'government' ? 'government-dashboard' : 'civilian-dashboard');
+    } else if (view !== 'landing' && view !== 'government-login' && view !== 'civilian-login' && view !== 'government-signup' && view !== 'civilian-signup') {
       setView('landing');
     }
   }, [user]);
 
-  const handleSelectPortal = (role: 'soldier' | 'civilian') => {
-    setView(role === 'soldier' ? 'soldier-login' : 'civilian-login');
+  const handleSelectPortal = (role: 'government' | 'civilian') => {
+    setView(role === 'government' ? 'government-login' : 'civilian-login');
   };
 
   const handleLogout = () => {
@@ -35,7 +35,7 @@ function AppContent() {
 
   const handleLoginSuccess = () => {
     if (user) {
-      setView(user.role === 'soldier' ? 'soldier-dashboard' : 'civilian-dashboard');
+      setView(user.role === 'government' ? 'government-dashboard' : 'civilian-dashboard');
     }
   };
 
@@ -44,12 +44,12 @@ function AppContent() {
       {view === 'landing' && (
         <LandingPage onSelectPortal={handleSelectPortal} />
       )}
-      {view === 'soldier-login' && (
+      {view === 'government-login' && (
         <LoginPage
-          role="soldier"
+          role="government"
           onBack={() => setView('landing')}
           onLoginSuccess={handleLoginSuccess}
-          onSwitchToSignup={() => setView('soldier-signup')}
+          onSwitchToSignup={() => setView('government-signup')}
         />
       )}
       {view === 'civilian-login' && (
@@ -60,12 +60,12 @@ function AppContent() {
           onSwitchToSignup={() => setView('civilian-signup')}
         />
       )}
-      {view === 'soldier-signup' && (
+      {view === 'government-signup' && (
         <SignupPage
-          role="soldier"
+          role="government"
           onBack={() => setView('landing')}
           onSignupSuccess={handleLoginSuccess}
-          onSwitchToLogin={() => setView('soldier-login')}
+          onSwitchToLogin={() => setView('government-login')}
         />
       )}
       {view === 'civilian-signup' && (
@@ -76,7 +76,7 @@ function AppContent() {
           onSwitchToLogin={() => setView('civilian-login')}
         />
       )}
-      {view === 'soldier-dashboard' && (
+      {view === 'government-dashboard' && (
         <SoldierDashboard onLogout={handleLogout} />
       )}
       {view === 'civilian-dashboard' && (

@@ -1,4 +1,4 @@
-import { Shield, Map, AlertTriangle, Radio, MessageSquare, Users, MapPin, Heart, Bell, Settings, LogOut, Lock, Activity } from 'lucide-react';
+import { Shield, Map, AlertTriangle, Radio, MessageSquare, Users, MapPin, Heart, Bell, Settings, LogOut, Lock, Activity, FileText, Zap } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import {
   Sidebar,
@@ -24,8 +24,8 @@ export default function SoldierSidebar({ onLogout }: SoldierSidebarProps) {
   const { user } = useApp();
 
   const mainItems = [
-    { title: 'Tactical Map', url: '/soldier', icon: Map },
-    { title: 'Active Alerts', url: '/soldier/alerts', icon: AlertTriangle },
+    { title: 'Jurisdiction Map', url: '/soldier', icon: Map },
+    { title: 'Public Alerts', url: '/soldier/alerts', icon: AlertTriangle },
     { title: 'Important Channel', url: '/soldier/channel', icon: Radio },
   ];
 
@@ -33,7 +33,7 @@ export default function SoldierSidebar({ onLogout }: SoldierSidebarProps) {
     { title: 'SOS & Hotspots', url: '/soldier/sos', icon: MapPin },
     { title: 'Evacuation Zones', url: '/soldier/evacuation', icon: Shield },
     { title: 'Medical Hubs', url: '/soldier/medical', icon: Heart },
-    { title: 'Civilians', url: '/soldier/civilians', icon: Users },
+    { title: 'Connected Citizens', url: '/soldier/civilians', icon: Users },
   ];
 
   const controlItems = [
@@ -43,13 +43,17 @@ export default function SoldierSidebar({ onLogout }: SoldierSidebarProps) {
     { title: 'Settings', url: '/soldier/settings', icon: Settings },
   ];
 
+  const aiItems = [
+    { title: 'AI Damage Assessment', url: '/soldier/assess', icon: Zap },
+  ];
+
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4 border-b">
         <div className="flex items-center gap-3">
           <Shield className="h-8 w-8 text-primary" />
           <div className="flex-1 min-w-0">
-            <h2 className="font-tactical font-bold text-lg truncate">Soldier Command</h2>
+            <h2 className="font-tactical font-bold text-lg truncate">Government Portal</h2>
             <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
           </div>
         </div>
@@ -57,10 +61,52 @@ export default function SoldierSidebar({ onLogout }: SoldierSidebarProps) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Command Center</SidebarGroupLabel>
+          <SidebarGroupLabel>Admin Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={location === item.url}>
+                    <Link href={item.url} data-testid={`nav-${item.title.toLowerCase().replace(/\s/g, '-')}`}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Communication</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={location === '/soldier/chat'}>
+                  <Link href="/soldier/chat" data-testid="nav-citizen-chat">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Citizen Chat</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={location === '/soldier/alert-manager'}>
+                  <Link href="/soldier/alert-manager" data-testid="nav-alert-manager">
+                    <FileText className="h-4 w-4" />
+                    <span>Alert Manager</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>AI Tools</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {aiItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={location === item.url}>
                     <Link href={item.url} data-testid={`nav-${item.title.toLowerCase().replace(/\s/g, '-')}`}>

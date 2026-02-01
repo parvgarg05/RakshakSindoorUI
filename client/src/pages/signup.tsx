@@ -5,7 +5,7 @@ import { userStore } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 
 interface SignupPageProps {
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
   onBack: () => void;
   onSignupSuccess: () => void;
   onSwitchToLogin: () => void;
@@ -15,7 +15,7 @@ interface StoredUserData {
   username: string;
   password: string;
   displayName: string;
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
 }
 
 export default function SignupPage({ role, onBack, onSignupSuccess, onSwitchToLogin }: SignupPageProps) {

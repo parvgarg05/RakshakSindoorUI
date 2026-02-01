@@ -1,7 +1,8 @@
 export const translations = {
   en: {
     appName: "Rakshak Sindoor",
-    soldierPortal: "Soldier Portal",
+    soldierPortal: "Government Portal",
+    governmentPortal: "Government Portal",
     civilianPortal: "Civilian Portal",
     login: "Login",
     username: "Username",
@@ -40,7 +41,8 @@ export const translations = {
   },
   hi: {
     appName: "रक्षक सिंदूर",
-    soldierPortal: "सैनिक पोर्टल",
+    soldierPortal: "सरकारी पोर्टल",
+    governmentPortal: "सरकारी पोर्टल",
     civilianPortal: "नागरिक पोर्टल",
     login: "लॉगिन",
     username: "उपयोगकर्ता नाम",
@@ -79,7 +81,8 @@ export const translations = {
   },
   ur: {
     appName: "رکشک سندور",
-    soldierPortal: "فوجی پورٹل",
+    soldierPortal: "حکومتی پورٹل",
+    governmentPortal: "حکومتی پورٹل",
     civilianPortal: "شہری پورٹل",
     login: "لاگ ان",
     username: "صارف نام",
@@ -118,7 +121,8 @@ export const translations = {
   },
   ks: {
     appName: "Rakshak Sindoor",
-    soldierPortal: "Soldier Portal",
+    soldierPortal: "Government Portal",
+    governmentPortal: "Government Portal",
     civilianPortal: "Civilian Portal",
     login: "Login",
     username: "Username",

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getTranslation, type Language } from '@/lib/i18n';
 
 interface LoginFormProps {
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
   language: Language;
   onLogin: (username: string, password: string, rememberMe: boolean) => void;
   onBack?: () => void;
@@ -25,20 +25,20 @@ export default function LoginForm({ role, language, onLogin, onBack, onSwitchToS
     onLogin(username, password, rememberMe);
   };
 
-  const isSoldier = role === 'soldier';
+  const isGovernment = role === 'government';
 
   return (
-    <Card className={`w-full max-w-md ${isSoldier ? 'dark border-primary' : ''}`}>
+    <Card className={`w-full max-w-md ${isGovernment ? 'dark border-primary' : ''}`}>
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          {isSoldier ? (
+          {isGovernment ? (
             <Shield className="h-16 w-16 text-primary" />
           ) : (
             <User className="h-16 w-16 text-primary" />
           )}
         </div>
-        <CardTitle className={isSoldier ? 'font-tactical text-2xl' : 'text-2xl'}>
-          {getTranslation(language, isSoldier ? 'soldierPortal' : 'civilianPortal')}
+        <CardTitle className={isGovernment ? 'font-tactical text-2xl' : 'text-2xl'}>
+          {getTranslation(language, isGovernment ? 'governmentPortal' : 'civilianPortal')}
         </CardTitle>
         <CardDescription>
           {getTranslation(language, 'login')}

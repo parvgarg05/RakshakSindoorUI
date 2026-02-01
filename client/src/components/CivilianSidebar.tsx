@@ -1,4 +1,4 @@
-import { Users, Map, MessageSquare, MapPin, Heart, Bell, Settings, LogOut, Radio, Shield } from 'lucide-react';
+import { Users, Map, MessageSquare, MapPin, Heart, Bell, Settings, LogOut, Radio, Shield, Reply } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import {
   Sidebar,
@@ -26,6 +26,8 @@ export default function CivilianSidebar({ onLogout }: CivilianSidebarProps) {
   const mainItems = [
     { title: 'Map View', url: '/civilian', icon: Map },
     { title: 'Important Channel', url: '/civilian/channel', icon: Radio },
+    { title: 'Gov Chat', url: '/civilian/chat', icon: MessageSquare },
+    { title: 'Direct Chat', url: '/civilian/direct-chat', icon: Reply },
     { title: 'Messages', url: '/civilian/messages', icon: MessageSquare },
   ];
 

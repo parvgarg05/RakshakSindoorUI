@@ -5,7 +5,7 @@ import { userStore } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginPageProps {
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
   onBack: () => void;
   onLoginSuccess: () => void;
   onSwitchToSignup?: () => void;
@@ -15,7 +15,7 @@ interface StoredUserData {
   username: string;
   password: string;
   displayName: string;
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
 }
 
 export default function LoginPage({ role, onBack, onLoginSuccess, onSwitchToSignup }: LoginPageProps) {
@@ -53,8 +53,8 @@ export default function LoginPage({ role, onBack, onLoginSuccess, onSwitchToSign
       return;
     }
 
-    const mockUsers: Record<string, { password: string; role: 'soldier' | 'civilian'; displayName: string }> = {
-      'soldier1': { password: 'pass123', role: 'soldier', displayName: 'Demo Soldier' },
+    const mockUsers: Record<string, { password: string; role: 'government' | 'civilian'; displayName: string }> = {
+      'government1': { password: 'pass123', role: 'government', displayName: 'Demo Government' },
       'civilian1': { password: 'pass123', role: 'civilian', displayName: 'Demo Civilian' },
       'demo': { password: 'demo', role: role, displayName: 'Demo User' },
     };

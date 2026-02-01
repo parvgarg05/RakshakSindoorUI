@@ -1,5 +1,5 @@
 // Rakshak Sindoor Service Worker for Offline-First PWA
-const CACHE_NAME = 'rakshak-sindoor-v1';
+const CACHE_NAME = 'rakshak-sindoor-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -13,6 +13,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(urlsToCache);
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -48,4 +49,5 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });

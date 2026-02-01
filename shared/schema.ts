@@ -6,6 +6,7 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
   role: text("role").notNull(),
   rememberMe: boolean("remember_me").default(false),
@@ -51,7 +52,33 @@ export const mapMarkers = pgTable("map_markers", {
   timestamp: timestamp("timestamp").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({
+export const sosSignals = pgTable("sos_signals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  location: jsonb("location").notNull(),
+  status: text("status").notNull().default("active"),
+  severity: text("severity").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+export const evacuationZones = pgTable("evacuation_zones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // 'safe', 'medical', 'evacuation'
+  location: jsonb("location").notNull(),
+  capacity: integer("capacity").notNull(),
+  currentOccupancy: integer("current_occupancy").default(0),
+  status: text("status").notNull().default("active"), // 'active', 'inactive', 'full'
+  description: text("description"),
+  createdBy: varchar("created_by").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users).extend({
+  role: z.enum(["government", "civilian"]),
+}).omit({
   id: true,
 });
 
@@ -76,6 +103,17 @@ export const insertMapMarkerSchema = createInsertSchema(mapMarkers).omit({
   timestamp: true,
 });
 
+export const insertSosSignalSchema = createInsertSchema(sosSignals).omit({
+  id: true,
+  createdAt: true,
+  resolvedAt: true,
+});
+
+export const insertEvacuationZoneSchema = createInsertSchema(evacuationZones).omit({
+  id: true,
+  timestamp: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
@@ -86,3 +124,7 @@ export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;
 export type InsertMapMarker = z.infer<typeof insertMapMarkerSchema>;
 export type MapMarker = typeof mapMarkers.$inferSelect;
+export type InsertSosSignal = z.infer<typeof insertSosSignalSchema>;
+export type SosSignal = typeof sosSignals.$inferSelect;
+export type InsertEvacuationZone = z.infer<typeof insertEvacuationZoneSchema>;
+export type EvacuationZone = typeof evacuationZones.$inferSelect;

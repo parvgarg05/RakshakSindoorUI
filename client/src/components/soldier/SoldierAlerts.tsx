@@ -57,6 +57,8 @@ export default function SoldierAlerts() {
       type: 'threat'
     });
 
+    window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+
     setActiveAlerts([alertData, ...activeAlerts]);
     toast({ 
       title: "Alert Published", 

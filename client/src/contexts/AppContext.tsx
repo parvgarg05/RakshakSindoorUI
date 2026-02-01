@@ -6,7 +6,7 @@ interface User {
   id: string;
   username: string;
   displayName?: string;
-  role: 'soldier' | 'civilian';
+  role: 'government' | 'civilian';
   language: Language;
 }
 

@@ -13,7 +13,7 @@ import { getTranslation } from '@/lib/i18n';
 import { encryptMessage } from '@/lib/encryption';
 
 interface LandingPageProps {
-  onSelectPortal: (role: 'soldier' | 'civilian') => void;
+  onSelectPortal: (role: 'government' | 'civilian') => void;
 }
 
 export default function LandingPage({ onSelectPortal }: LandingPageProps) {
@@ -65,18 +65,18 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <Card 
               className="p-8 hover-elevate active-elevate-2 cursor-pointer bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20"
-              onClick={() => onSelectPortal('soldier')}
-              data-testid="card-soldier-portal"
+              onClick={() => onSelectPortal('government')}
+              data-testid="card-government-portal"
             >
               <div className="flex flex-col items-center text-center gap-4">
                 <Shield className="h-24 w-24 text-primary" />
                 <h2 className="text-3xl font-tactical font-bold">
-                  {getTranslation(language, 'soldierPortal')}
+                  {getTranslation(language, 'governmentPortal')}
                 </h2>
                 <p className="text-muted-foreground">
-                  Command Center & Emergency Management
+                  Admin Dashboard & Emergency Management
                 </p>
-                <Button className="mt-4" data-testid="button-enter-soldier">
+                <Button className="mt-4" data-testid="button-enter-government">
                   Enter Portal
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

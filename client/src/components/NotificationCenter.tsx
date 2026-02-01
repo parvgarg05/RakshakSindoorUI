@@ -24,7 +24,7 @@ interface NotificationCenterProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   notifications: Notification[];
-  userRole: 'soldier' | 'civilian';
+  userRole: 'government' | 'civilian';
   onAcknowledge?: (id: string) => void;
   onPin?: (id: string) => void;
 }
@@ -62,12 +62,18 @@ export default function NotificationCenter({
         <SheetHeader>
           <SheetTitle>Notifications</SheetTitle>
           <SheetDescription>
-            {userRole === 'soldier' ? 'Manage and prioritize alerts' : 'View important alerts'}
+            {userRole === 'government' ? 'Manage and prioritize alerts' : 'View important alerts'}
           </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
-          <div className="space-y-3">
-            {sortedNotifications.map((notification) => {
+          <div className="space-y-3 pr-4">
+            {sortedNotifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Info className="h-8 w-8 text-muted-foreground mb-2 opacity-50" />
+                <p className="text-sm text-muted-foreground">No notifications</p>
+              </div>
+            ) : (
+              sortedNotifications.map((notification) => {
               const Icon = typeIcons[notification.type];
               return (
                 <div
@@ -97,7 +103,7 @@ export default function NotificationCenter({
                       </span>
                     </div>
                     <div className="flex gap-1">
-                      {userRole === 'soldier' && onPin && (
+                      {userRole === 'government' && onPin && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -121,7 +127,8 @@ export default function NotificationCenter({
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         </ScrollArea>
       </SheetContent>
