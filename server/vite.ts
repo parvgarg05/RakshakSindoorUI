@@ -88,11 +88,16 @@ export function serveStatic(app: Express) {
       console.error("Could not read cwd:", e);
     }
     
-    throw new Error(
-      `Could not find the build directory: ${distPath}\n` +
-      `Make sure to run 'npm run build' before deploying.\n` +
-      `Current working directory: ${cwd}`
-    );
+    // Don't throw - instead log and serve error page
+    app.use("*", (_req, res) => {
+      res.status(503).send(
+        `<html><body><h1>Service Unavailable</h1>` +
+        `<p>Build directory not found at: ${distPath}</p>` +
+        `<p>Make sure to run 'npm run build' before deploying.</p>` +
+        `<p>Current working directory: ${cwd}</p></body></html>`
+      );
+    });
+    return;
   }
 
   console.log("DEBUG: Serving static files from:", distPath);
