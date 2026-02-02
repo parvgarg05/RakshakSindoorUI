@@ -25,10 +25,7 @@ interface CivilianDashboardProps {
 export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [, navigate] = useLocation();
-  const [notificationCount, setNotificationCount] = useState(() => {
-    const saved = localStorage.getItem('civilian_notification_count');
-    return saved ? parseInt(saved, 10) : 0;
-  });
+  const [notificationCount, setNotificationCount] = useState(0);
   const [centerNotifications, setCenterNotifications] = useState<
     {
       id: string;
@@ -40,33 +37,60 @@ export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) 
     }[]
   >([]);
 
+  // Load actual notification count from storage on mount
   useEffect(() => {
-    // Initialize from localStorage
-    const count = localStorage.getItem('civilian_notification_count');
-    if (count) setNotificationCount(parseInt(count, 10));
+    const loadActualCount = async () => {
+      try {
+        let unreadCount = 0;
+        const readIds = new Set<string>();
+        
+        // Get read IDs from localStorage
+        try {
+          const raw = localStorage.getItem('civilian_notification_read');
+          const parsed = raw ? JSON.parse(raw) : [];
+          if (Array.isArray(parsed)) {
+            parsed.forEach(id => readIds.add(id));
+          }
+        } catch {}
+
+        // Count unread notifications from storage
+        await messageStore.iterate((value: any, key: string) => {
+          if (!key?.startsWith('notif_')) return;
+          if (!value?.id) return;
+          
+          // Check if notification is read
+          const isRead = value.read === true || readIds.has(value.id);
+          if (!isRead) {
+            unreadCount++;
+          }
+        });
+
+        // Update count
+        setNotificationCount(unreadCount);
+        localStorage.setItem('civilian_notification_count', unreadCount.toString());
+      } catch (error) {
+        console.error('Error loading notification count:', error);
+      }
+    };
+
+    loadActualCount();
 
     // Listen for notification updates from CivilianNotifications or NotificationCenter
     const handleUpdate = () => {
-      const count = localStorage.getItem('civilian_notification_count');
-      setNotificationCount(count ? parseInt(count, 10) : 0);
-    };
-
-    // Listen for public alerts updates (when CivilianNotifications loads)
-    const handlePublicAlertsUpdated = () => {
-      handleUpdate();
+      loadActualCount();
     };
 
     window.addEventListener('notification:updated', handleUpdate);
-    window.addEventListener('public-alerts:updated', handlePublicAlertsUpdated);
+    window.addEventListener('public-alerts:updated', handleUpdate);
     window.addEventListener('storage', (e) => {
-      if (e.key === 'civilian_notification_count') {
+      if (e.key === 'civilian_notification_count' || e.key === 'civilian_notification_read') {
         handleUpdate();
       }
     });
 
     return () => {
       window.removeEventListener('notification:updated', handleUpdate);
-      window.removeEventListener('public-alerts:updated', handlePublicAlertsUpdated);
+      window.removeEventListener('public-alerts:updated', handleUpdate);
     };
   }, []);
 

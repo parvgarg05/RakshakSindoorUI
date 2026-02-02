@@ -29,10 +29,7 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
   const [, navigate] = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [panelKey, setPanelKey] = useState(0);
-  const [notificationCount, setNotificationCount] = useState(() => {
-    const saved = localStorage.getItem('soldier_notification_count');
-    return saved ? parseInt(saved, 10) : 0;
-  });
+  const [notificationCount, setNotificationCount] = useState(0);
   const [centerNotifications, setCenterNotifications] = useState<Array<{
     id: string;
     type: 'threat' | 'evacuation' | 'sos' | 'general';
@@ -42,19 +39,56 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
     region?: string;
   }>>([]);
 
+  // Load actual notification count from storage on mount
   useEffect(() => {
-    // Initialize from localStorage
-    const count = localStorage.getItem('soldier_notification_count');
-    if (count) setNotificationCount(parseInt(count, 10));
+    const loadActualCount = async () => {
+      try {
+        let unreadCount = 0;
+        const readIds = new Set<string>();
+        
+        // Get read IDs from localStorage
+        try {
+          const raw = localStorage.getItem('soldier_notification_read');
+          const parsed = raw ? JSON.parse(raw) : [];
+          if (Array.isArray(parsed)) {
+            parsed.forEach(id => readIds.add(id));
+          }
+        } catch {}
+
+        // Count unread notifications from storage
+        const { messageStore } = await import('@/lib/storage');
+        await messageStore.iterate((value: any, key: string) => {
+          if (!key?.startsWith('notif_')) return;
+          if (!value?.id) return;
+          
+          // Check if notification is read
+          const isRead = value.read === true || readIds.has(value.id);
+          if (!isRead) {
+            unreadCount++;
+          }
+        });
+
+        // Update count
+        setNotificationCount(unreadCount);
+        localStorage.setItem('soldier_notification_count', unreadCount.toString());
+      } catch (error) {
+        console.error('Error loading notification count:', error);
+      }
+    };
+
+    loadActualCount();
 
     // Listen for notification updates
     const handleUpdate = () => {
-      const count = localStorage.getItem('soldier_notification_count');
-      setNotificationCount(count ? parseInt(count, 10) : 0);
+      loadActualCount();
     };
 
     window.addEventListener('notification:updated', handleUpdate);
-    return () => window.removeEventListener('notification:updated', handleUpdate);
+    window.addEventListener('public-alerts:updated', handleUpdate);
+    return () => {
+      window.removeEventListener('notification:updated', handleUpdate);
+      window.removeEventListener('public-alerts:updated', handleUpdate);
+    };
   }, []);
 
   const handlePanelToggle = () => {
