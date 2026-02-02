@@ -1,0 +1,5 @@
+[build]
+cmds = ["npm ci --omit=dev", "npm run build"]
+
+[start]
+cmd = "npm start"
