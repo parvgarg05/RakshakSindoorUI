@@ -82,7 +82,11 @@ export function serveStatic(app: Express) {
 
   if (!fs.existsSync(distPath)) {
     console.error("ERROR: Build directory not found!");
-    console.error("Available in cwd:", fs.readdirSync(cwd));
+    try {
+      console.error("Available in cwd:", fs.readdirSync(cwd));
+    } catch (e) {
+      console.error("Could not read cwd:", e);
+    }
     
     throw new Error(
       `Could not find the build directory: ${distPath}\n` +
@@ -92,12 +96,28 @@ export function serveStatic(app: Express) {
   }
 
   console.log("DEBUG: Serving static files from:", distPath);
-  app.use(express.static(distPath));
+  
+  // Serve static files with proper error handling
+  app.use(express.static(distPath, {
+    maxAge: '1d',
+    etag: false,
+  }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  // fall through to index.html if the file doesn't exist (for SPA routing)
+  app.use("*", (req, res) => {
     const indexPath = path.resolve(distPath, "index.html");
-    console.log("DEBUG: Serving index.html from:", indexPath);
-    res.sendFile(indexPath);
+    console.log("DEBUG: Serving index.html from:", indexPath, "for route:", req.path);
+    
+    if (!fs.existsSync(indexPath)) {
+      console.error("ERROR: index.html not found at:", indexPath);
+      return res.status(404).send("index.html not found");
+    }
+    
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error("ERROR sending index.html:", err);
+        res.status(500).send("Error serving index.html");
+      }
+    });
   });
 }
