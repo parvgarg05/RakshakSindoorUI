@@ -1,4 +1,4 @@
-import { X, AlertTriangle, Shield, MapPin, Info } from 'lucide-react';
+import { X, AlertTriangle, Shield, MapPin, Info, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -118,12 +118,16 @@ export default function NotificationCenter({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => onAcknowledge(notification.id)}
-                          data-testid={`button-ack-${notification.id}`}
-                          className="hover:bg-destructive/10 hover:text-destructive"
-                          title="Dismiss notification"
+                          onClick={() => {
+                            // Reload notifications by dispatching event
+                            window.dispatchEvent(new CustomEvent('notification:updated'));
+                            window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+                          }}
+                          data-testid={`button-reload-${notification.id}`}
+                          className="hover:bg-blue-50 hover:text-blue-600"
+                          title="Reload notifications"
                         >
-                          <X className="h-5 w-5" />
+                          <RotateCw className="h-5 w-5" />
                         </Button>
                       )}
                     </div>

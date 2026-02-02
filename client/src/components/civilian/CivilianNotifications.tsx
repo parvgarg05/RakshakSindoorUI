@@ -3,7 +3,7 @@
 //new one
 
 import { useEffect, useState } from "react";
-import { Bell, ShieldAlert, MapPin, HeartPulse, Clock, CheckCircle, Trash2, AlertTriangle, X } from "lucide-react";
+import { Bell, ShieldAlert, MapPin, HeartPulse, Clock, CheckCircle, Trash2, AlertTriangle, X, RotateCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { messageStore } from "@/lib/storage";
@@ -79,6 +79,28 @@ export default function CivilianNotifications() {
   };
 
   useEffect(() => {
+    const seedHardcodedNotification = async () => {
+      try {
+        const existing = await messageStore.getItem('notif_demo_001');
+        if (!existing) {
+          const demoNotification = {
+            id: 'demo_001',
+            type: 'general',
+            title: '📢 Welcome to Rakshak Sindoor',
+            message: 'This is a demo notification. Check your notification center for updates and alerts.',
+            timestamp: new Date().toISOString(),
+            source: 'system',
+            read: false,
+          };
+          await messageStore.setItem('notif_demo_001', demoNotification);
+        }
+      } catch (error) {
+        console.error('Error seeding demo notification:', error);
+      }
+    };
+
+    seedHardcodedNotification();
+
     const loadNotifications = async () => {
       const publicAlerts: NotificationItem[] = [];
       const readIds = getReadIds();
@@ -147,7 +169,7 @@ export default function CivilianNotifications() {
       nextReadIds.add(id);
       persistReadIds(nextReadIds);
       updateBadgeCount(updated);
-      window.dispatchEvent(new CustomEvent('notification:updated'));
+      // Don't dispatch event - we already updated state, no need to reload
       return updated;
     });
   };
@@ -159,7 +181,7 @@ export default function CivilianNotifications() {
       updated.forEach(n => nextReadIds.add(n.id));
       persistReadIds(nextReadIds);
       updateBadgeCount(updated);
-      window.dispatchEvent(new CustomEvent('notification:updated'));
+      // Don't dispatch event - we already updated state, no need to reload
       return updated;
     });
   };
@@ -172,7 +194,7 @@ export default function CivilianNotifications() {
         // Update badge count
         const unreadCount = updated.filter(n => !n.read).length;
         localStorage.setItem('civilian_notification_count', unreadCount.toString());
-        window.dispatchEvent(new CustomEvent('notification:updated'));
+        // Don't dispatch event - we already updated state, no need to reload
         return updated;
       });
 
@@ -288,13 +310,15 @@ export default function CivilianNotifications() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        deleteNotification(notification.id);
+                        // Reload notifications by dispatching event
+                        window.dispatchEvent(new CustomEvent('notification:updated'));
+                        window.dispatchEvent(new CustomEvent('public-alerts:updated'));
                       }}
-                      className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1 transition-colors flex-shrink-0 cursor-pointer"
-                      title="Remove notification"
+                      className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg p-1 transition-colors flex-shrink-0 cursor-pointer"
+                      title="Reload notifications"
                       type="button"
                     >
-                      <X className="h-5 w-5" />
+                      <RotateCw className="h-5 w-5" />
                     </button>
                   </div>
                   

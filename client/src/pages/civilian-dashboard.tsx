@@ -37,6 +37,38 @@ export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) 
     }[]
   >([]);
 
+  // Seed hardcoded notification on first load
+  useEffect(() => {
+    const seedHardcodedNotification = async () => {
+      try {
+        const existing = await messageStore.getItem('notif_demo_001');
+        if (!existing) {
+          const demoNotification = {
+            id: 'demo_001',
+            type: 'general',
+            title: '📢 Welcome to Rakshak Sindoor',
+            message: 'This is a demo notification. Check your notification center for updates and alerts.',
+            timestamp: new Date().toISOString(),
+            source: 'system',
+            read: false,
+          };
+          await messageStore.setItem('notif_demo_001', demoNotification);
+          
+          // Update count
+          const rawCount = localStorage.getItem('civilian_notification_count');
+          const currentCount = rawCount ? parseInt(rawCount, 10) : 0;
+          const newCount = currentCount + 1;
+          localStorage.setItem('civilian_notification_count', newCount.toString());
+          window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+        }
+      } catch (error) {
+        console.error('Error seeding demo notification:', error);
+      }
+    };
+
+    seedHardcodedNotification();
+  }, []);
+
   // Load actual notification count from storage on mount
   useEffect(() => {
     // First, show cached count immediately for instant feedback
