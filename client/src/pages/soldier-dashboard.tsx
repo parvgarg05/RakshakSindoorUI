@@ -41,6 +41,12 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
 
   // Load actual notification count from storage on mount
   useEffect(() => {
+    // First, show cached count immediately for instant feedback
+    const cachedCount = localStorage.getItem('soldier_notification_count');
+    if (cachedCount) {
+      setNotificationCount(parseInt(cachedCount, 10));
+    }
+
     const loadActualCount = async () => {
       try {
         let unreadCount = 0;
@@ -68,18 +74,28 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
           }
         });
 
-        // Update count
-        setNotificationCount(unreadCount);
-        localStorage.setItem('soldier_notification_count', unreadCount.toString());
+        // Update count only if different from cached
+        const cached = localStorage.getItem('soldier_notification_count');
+        if (!cached || parseInt(cached, 10) !== unreadCount) {
+          setNotificationCount(unreadCount);
+          localStorage.setItem('soldier_notification_count', unreadCount.toString());
+        }
       } catch (error) {
         console.error('Error loading notification count:', error);
       }
     };
 
+    // Load actual count in background
     loadActualCount();
 
     // Listen for notification updates
     const handleUpdate = () => {
+      // Show cached count immediately
+      const cached = localStorage.getItem('soldier_notification_count');
+      if (cached) {
+        setNotificationCount(parseInt(cached, 10));
+      }
+      // Then verify in background
       loadActualCount();
     };
 
