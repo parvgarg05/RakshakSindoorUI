@@ -29,7 +29,18 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
   const [, navigate] = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [panelKey, setPanelKey] = useState(0);
-  const [notificationCount, setNotificationCount] = useState(3);
+  const [notificationCount, setNotificationCount] = useState(() => {
+    const saved = localStorage.getItem('soldier_notification_count');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [centerNotifications, setCenterNotifications] = useState<Array<{
+    id: string;
+    type: 'threat' | 'evacuation' | 'sos' | 'general';
+    title: string;
+    message: string;
+    timestamp: string;
+    region?: string;
+  }>>([]);
 
   useEffect(() => {
     // Initialize from localStorage
@@ -50,21 +61,29 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
     setPanelKey(prev => prev + 1);
   };
 
+  const handleAcknowledge = async (id: string) => {
+    try {
+      setCenterNotifications(prev => prev.filter((n) => n.id !== id));
+      const { messageStore } = await import('@/lib/storage');
+      await messageStore.removeItem(`notif_${id}`);
+      const nextCount = Math.max(0, notificationCount - 1);
+      setNotificationCount(nextCount);
+      localStorage.setItem('soldier_notification_count', nextCount.toString());
+      window.dispatchEvent(new CustomEvent('notification:updated'));
+      window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+    } catch (error) {
+      console.error('Error acknowledging notification:', error);
+    }
+  };
+
+  const handlePin = (id: string) => {
+    console.log('Pinned notification:', id);
+  };
+
   // Wrapper component for map view - defined inside to access closure variables
   const SoldierMapViewWrapper = () => (
     <SoldierMapView onPanelToggle={handlePanelToggle} panelKey={panelKey} />
   );
-
-  const mockNotifications = [
-    {
-      id: '1',
-      type: 'threat' as const,
-      title: 'Critical Threat Alert',
-      message: 'Immediate action required in Sector 7',
-      timestamp: '2 min ago',
-      region: 'Sector 7',
-    },
-  ];
 
   const style = {
     '--sidebar-width': '16rem',
@@ -121,10 +140,10 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
       <NotificationCenter
         open={showNotifications}
         onOpenChange={setShowNotifications}
-        notifications={mockNotifications}
+        notifications={centerNotifications}
         userRole="government"
-        onAcknowledge={(id) => console.log('Ack:', id)}
-        onPin={(id) => console.log('Pin:', id)}
+        onAcknowledge={handleAcknowledge}
+        onPin={handlePin}
       />
     </SidebarProvider>
   );

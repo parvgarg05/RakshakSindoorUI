@@ -102,13 +102,14 @@ export default function NotificationCenter({
                         {notification.timestamp}
                       </span>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-2 flex-shrink-0">
                       {userRole === 'government' && onPin && (
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => onPin(notification.id)}
                           data-testid={`button-pin-${notification.id}`}
+                          className="text-xs"
                         >
                           Pin
                         </Button>
@@ -119,8 +120,10 @@ export default function NotificationCenter({
                           variant="ghost"
                           onClick={() => onAcknowledge(notification.id)}
                           data-testid={`button-ack-${notification.id}`}
+                          className="hover:bg-destructive/10 hover:text-destructive"
+                          title="Dismiss notification"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-5 w-5" />
                         </Button>
                       )}
                     </div>

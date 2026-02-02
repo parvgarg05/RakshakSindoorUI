@@ -3,7 +3,7 @@
 //new one
 
 import { useEffect, useState } from "react";
-import { Bell, ShieldAlert, MapPin, HeartPulse, Clock, CheckCircle, Trash2, AlertTriangle } from "lucide-react";
+import { Bell, ShieldAlert, MapPin, HeartPulse, Clock, CheckCircle, Trash2, AlertTriangle, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { messageStore } from "@/lib/storage";
@@ -36,35 +36,7 @@ interface NotificationItem {
   source?: 'public' | 'local';
 }
 
-const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: '1',
-    type: 'evac',
-    title: 'Evacuation Order: Sector 7',
-    message: 'Flooding risk has increased. Please proceed to the nearest safe zone immediately.',
-    timestamp: '5 min ago',
-    read: false,
-    source: 'local',
-  },
-  {
-    id: '2',
-    type: 'medical',
-    title: 'Medical Camp Open',
-    message: 'A new relief camp with doctors is now active at Government High School.',
-    timestamp: '30 min ago',
-    read: false,
-    source: 'local',
-  },
-  {
-    id: '3',
-    type: 'safe',
-    title: 'Safe Zone Confirmed',
-    message: 'Your current location has been marked as safe by Army personnel.',
-    timestamp: '2 hours ago',
-    read: true,
-    source: 'local',
-  },
-];
+const INITIAL_NOTIFICATIONS: NotificationItem[] = [];
 
 export default function CivilianNotifications() {
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
@@ -101,7 +73,7 @@ export default function CivilianNotifications() {
       title: value.title,
       message: value.message,
       timestamp,
-      read: readIds.has(value.id),
+      read: value.read === true ? true : readIds.has(value.id),
       source: 'public',
     };
   };
@@ -142,6 +114,7 @@ export default function CivilianNotifications() {
 
       setNotifications(merged);
       updateBadgeCount(merged);
+      window.dispatchEvent(new CustomEvent('notification:updated'));
     };
 
     // Get user location for filtering
@@ -174,6 +147,7 @@ export default function CivilianNotifications() {
       nextReadIds.add(id);
       persistReadIds(nextReadIds);
       updateBadgeCount(updated);
+      window.dispatchEvent(new CustomEvent('notification:updated'));
       return updated;
     });
   };
@@ -185,15 +159,67 @@ export default function CivilianNotifications() {
       updated.forEach(n => nextReadIds.add(n.id));
       persistReadIds(nextReadIds);
       updateBadgeCount(updated);
+      window.dispatchEvent(new CustomEvent('notification:updated'));
       return updated;
     });
   };
 
-  const clearAll = () => {
+  const deleteNotification = (id: string) => {
+    try {
+      // Remove from state immediately
+      setNotifications(prev => {
+        const updated = prev.filter(n => n.id !== id);
+        // Update badge count
+        const unreadCount = updated.filter(n => !n.read).length;
+        localStorage.setItem('civilian_notification_count', unreadCount.toString());
+        window.dispatchEvent(new CustomEvent('notification:updated'));
+        return updated;
+      });
+
+      // Remove from storage asynchronously
+      const removeAsync = async () => {
+        try {
+          // Try both the prefixed and non-prefixed versions
+          await messageStore.removeItem(`notif_${id}`);
+          await messageStore.removeItem(id);
+          
+          // Remove from read ids
+          const readIds = getReadIds();
+          readIds.delete(id);
+          persistReadIds(readIds);
+
+          // Dispatch events
+          window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+        } catch (error) {
+          console.error('Error removing from storage:', error);
+        }
+      };
+
+      removeAsync();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  const clearAll = async () => {
+    // Clear from IndexedDB
+    const keysToDelete: string[] = [];
+    await messageStore.iterate((value: any, key: string) => {
+      if (key?.startsWith('notif_')) {
+        keysToDelete.push(key);
+      }
+    });
+    
+    for (const key of keysToDelete) {
+      await messageStore.removeItem(key);
+    }
+
+    // Clear local state
     setNotifications([]);
     localStorage.setItem('civilian_notification_count', '0');
     localStorage.setItem('civilian_notification_read', '[]');
     window.dispatchEvent(new CustomEvent('notification:updated'));
+    window.dispatchEvent(new CustomEvent('public-alerts:updated'));
   };
 
   return (
@@ -248,17 +274,31 @@ export default function CivilianNotifications() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <h4 className={`font-semibold text-lg ${notification.read ? 'text-gray-600' : 'text-gray-900'}`}>
-                      {notification.title}
-                    </h4>
-                    <span className="flex items-center text-xs text-gray-500 whitespace-nowrap ml-2">
-                      <Clock className="mr-1 h-3 w-3" />
-                      {notification.timestamp}
-                    </span>
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1">
+                      <h4 className={`font-semibold text-lg ${notification.read ? 'text-gray-600' : 'text-gray-900'}`}>
+                        {notification.title}
+                      </h4>
+                      <div className="flex items-center text-xs text-gray-500 mt-1">
+                        <Clock className="mr-1 h-3 w-3" />
+                        {notification.timestamp}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteNotification(notification.id);
+                      }}
+                      className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1 transition-colors flex-shrink-0 cursor-pointer"
+                      title="Remove notification"
+                      type="button"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                  <p className="text-sm text-gray-600 mt-2 leading-relaxed">
                     {notification.message}
                   </p>
 

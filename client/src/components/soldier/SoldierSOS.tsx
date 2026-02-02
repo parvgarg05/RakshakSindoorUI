@@ -3,7 +3,7 @@ import { MapPin, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { markerStore } from '@/lib/storage';
+import { markerStore, messageStore } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 
 interface HotspotItem {
@@ -48,32 +48,75 @@ export default function SoldierSOS() {
       return;
     }
 
-    const id = `sos-${Date.now()}`;
-    const lat = latitude;
-    const lon = longitude;
-    const newMarker = {
-      id,
-      position: [lat, lon] as [number, number],
-      type: 'sos' as const,
-      label: label.trim() || 'New SOS Hotspot',
-      timestamp: new Date().toISOString(),
-    };
-
-    await markerStore.setItem(id, newMarker);
-    window.dispatchEvent(new CustomEvent('sos:created', { detail: newMarker }));
-
-    setHotspots((prev) => [
-      {
+    try {
+      const id = `sos-${Date.now()}`;
+      const lat = latitude;
+      const lon = longitude;
+      const notifId = `notif_${Date.now()}`;
+      
+      const newMarker = {
         id,
-        location: `Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}`,
-        status: 'active',
-        civilians,
-        time: 'just now',
-      },
-      ...prev,
-    ]);
+        position: [lat, lon] as [number, number],
+        type: 'sos' as const,
+        label: label.trim() || 'New SOS Hotspot',
+        timestamp: new Date().toISOString(),
+      };
 
-    toast({ title: 'SOS created', description: 'New SOS hotspot added to the map.' });
+      // Create notification for civilians
+      const notification = {
+        id: notifId,
+        type: 'threat',
+        title: '🚨 SOS Alert: ' + (label.trim() || 'New SOS Hotspot'),
+        message: `Location: Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}. ${civilians} civilians in distress. Please provide assistance or evacuate if necessary.`,
+        timestamp: new Date().toISOString(),
+        source: 'government',
+        read: false,
+      };
+
+      // Store marker
+      await markerStore.setItem(id, newMarker);
+      
+      // Store notification for civilians
+      await messageStore.setItem(notifId, notification);
+      
+      // Update UI
+      setHotspots((prev) => [
+        {
+          id,
+          location: `Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}`,
+          status: 'active',
+          civilians,
+          time: 'just now',
+        },
+        ...prev,
+      ]);
+
+      // Dispatch events to notify all listening components
+      window.dispatchEvent(new CustomEvent('sos:created', { detail: newMarker }));
+      
+      // Dispatch event to reload notifications in civilian dashboard
+      console.log('Dispatching public-alerts:updated event');
+      window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+      
+      // Update civilian notification count
+      const rawCount = localStorage.getItem('civilian_notification_count');
+      const currentCount = rawCount ? parseInt(rawCount, 10) : 0;
+      const newCount = currentCount + 1;
+      localStorage.setItem('civilian_notification_count', newCount.toString());
+      window.dispatchEvent(new CustomEvent('notification:updated'));
+
+      toast({ 
+        title: 'SOS created & notified', 
+        description: 'Civilians have been notified of this SOS hotspot.' 
+      });
+    } catch (error) {
+      console.error('Error creating SOS:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create SOS hotspot.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleResetAllSOS = async () => {
@@ -95,81 +138,120 @@ export default function SoldierSOS() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <MapPin className="h-8 w-8 text-destructive" />
-          <h1 className="text-3xl font-tactical font-bold">SOS & Hotspots</h1>
+    <div className="p-6 max-w-4xl mx-auto h-full bg-gray-50 overflow-y-auto">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <MapPin className="h-8 w-8 text-red-600" />
+            <h1 className="text-3xl font-bold text-gray-900">SOS & Hotspots</h1>
+          </div>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={handleResetAllSOS} 
+              data-testid="button-reset-sos"
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Reset All
+            </Button>
+            <Button 
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2"
+              onClick={handleCreateSOS} 
+              data-testid="button-create-sos"
+            >
+              <Plus className="h-4 w-4" />
+              New SOS Hotspot
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleResetAllSOS} data-testid="button-reset-sos">
-            <Trash2 className="h-4 w-4 mr-2" />
-            Reset All
-          </Button>
-          <Button variant="destructive" onClick={handleCreateSOS} data-testid="button-create-sos">
-            <Plus className="h-4 w-4 mr-2" />
-            New SOS
-          </Button>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-        <div className="md:col-span-2">
-          <label className="text-xs font-medium text-muted-foreground">Label</label>
-          <input
-            className="w-full mt-1 px-3 py-2 border rounded-md"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="e.g., Bridge Collapse - Sector 7"
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Latitude</label>
-          <input
-            type="number"
-            step="0.0001"
-            className="w-full mt-1 px-3 py-2 border rounded-md"
-            value={latitude}
-            onChange={(e) => setLatitude(parseFloat(e.target.value))}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Longitude</label>
-          <input
-            type="number"
-            step="0.0001"
-            className="w-full mt-1 px-3 py-2 border rounded-md"
-            value={longitude}
-            onChange={(e) => setLongitude(parseFloat(e.target.value))}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Civilians</label>
-          <input
-            type="number"
-            min={1}
-            className="w-full mt-1 px-3 py-2 border rounded-md"
-            value={civilians}
-            onChange={(e) => setCivilians(Number(e.target.value))}
-          />
-        </div>
-      </div>
-      <div className="grid gap-4">
-        {hotspots.map((hotspot) => (
-          <Card key={hotspot.id} className="hover-elevate" data-testid={`sos-${hotspot.id}`}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{hotspot.location}</CardTitle>
-                <Badge variant={hotspot.status === 'active' ? 'destructive' : 'secondary'}>
-                  {hotspot.status}
-                </Badge>
+
+        {/* Input Form Section */}
+        <Card className="bg-white border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg">Create New SOS Hotspot</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Label/Description</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                  placeholder="e.g., Bridge Collapse - Sector 7"
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{hotspot.civilians} civilians affected</p>
-              <span className="text-xs text-muted-foreground">{hotspot.time}</span>
-            </CardContent>
-          </Card>
-        ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  value={latitude}
+                  onChange={(e) => setLatitude(parseFloat(e.target.value))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  value={longitude}
+                  onChange={(e) => setLongitude(parseFloat(e.target.value))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Civilians Count</label>
+                <input
+                  type="number"
+                  min={1}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  value={civilians}
+                  onChange={(e) => setCivilians(Number(e.target.value))}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Hotspots List Section */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Active Hotspots ({hotspots.length})</h2>
+        <div className="grid gap-4">
+          {hotspots.length === 0 ? (
+            <Card className="bg-white">
+              <CardContent className="py-8 text-center">
+                <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No active SOS hotspots. Create one to get started.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            hotspots.map((hotspot) => (
+              <Card key={hotspot.id} className="bg-white hover:shadow-md transition-shadow" data-testid={`sos-${hotspot.id}`}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base text-gray-900">{hotspot.location}</CardTitle>
+                    <Badge variant={hotspot.status === 'active' ? 'destructive' : 'secondary'}>
+                      {hotspot.status.toUpperCase()}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-gray-700"><span className="font-medium">{hotspot.civilians}</span> civilians affected</p>
+                      <span className="text-xs text-gray-500">{hotspot.time}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

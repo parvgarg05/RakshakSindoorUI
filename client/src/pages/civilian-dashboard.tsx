@@ -25,7 +25,10 @@ interface CivilianDashboardProps {
 export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [, navigate] = useLocation();
-  const [notificationCount, setNotificationCount] = useState(2);
+  const [notificationCount, setNotificationCount] = useState(() => {
+    const saved = localStorage.getItem('civilian_notification_count');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [centerNotifications, setCenterNotifications] = useState<
     {
       id: string;
@@ -42,22 +45,53 @@ export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) 
     const count = localStorage.getItem('civilian_notification_count');
     if (count) setNotificationCount(parseInt(count, 10));
 
-    // Listen for notification updates
+    // Listen for notification updates from CivilianNotifications or NotificationCenter
     const handleUpdate = () => {
       const count = localStorage.getItem('civilian_notification_count');
       setNotificationCount(count ? parseInt(count, 10) : 0);
     };
 
+    // Listen for public alerts updates (when CivilianNotifications loads)
+    const handlePublicAlertsUpdated = () => {
+      handleUpdate();
+    };
+
     window.addEventListener('notification:updated', handleUpdate);
-    return () => window.removeEventListener('notification:updated', handleUpdate);
+    window.addEventListener('public-alerts:updated', handlePublicAlertsUpdated);
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'civilian_notification_count') {
+        handleUpdate();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('notification:updated', handleUpdate);
+      window.removeEventListener('public-alerts:updated', handlePublicAlertsUpdated);
+    };
   }, []);
 
   const handleAcknowledge = async (id: string) => {
-    setCenterNotifications(prev => prev.filter((n) => n.id !== id));
-    await messageStore.removeItem(`notif_${id}`);
-    const nextCount = Math.max(0, notificationCount - 1);
-    localStorage.setItem('civilian_notification_count', nextCount.toString());
-    window.dispatchEvent(new CustomEvent('notification:updated'));
+    try {
+      // Immediately remove from UI
+      setCenterNotifications(prev => {
+        const filtered = prev.filter((n) => n.id !== id);
+        return filtered;
+      });
+      
+      // Delete from storage
+      await messageStore.removeItem(`notif_${id}`);
+      
+      // Update count
+      const nextCount = Math.max(0, notificationCount - 1);
+      setNotificationCount(nextCount);
+      localStorage.setItem('civilian_notification_count', nextCount.toString());
+      
+      // Dispatch events
+      window.dispatchEvent(new CustomEvent('notification:updated'));
+      window.dispatchEvent(new CustomEvent('public-alerts:updated'));
+    } catch (error) {
+      console.error('Error acknowledging notification:', error);
+    }
   };
 
   useEffect(() => {
@@ -96,7 +130,14 @@ export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) 
     };
 
     loadPublicAlerts();
-    const handlePublicAlertsUpdated = () => loadPublicAlerts();
+    
+    const handlePublicAlertsUpdated = () => {
+      // Add small delay to ensure storage has been updated
+      setTimeout(() => {
+        loadPublicAlerts();
+      }, 100);
+    };
+    
     window.addEventListener('public-alerts:updated', handlePublicAlertsUpdated);
     return () => window.removeEventListener('public-alerts:updated', handlePublicAlertsUpdated);
   }, []);
