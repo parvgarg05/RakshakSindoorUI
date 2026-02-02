@@ -568,6 +568,16 @@ router.delete("/api/zones/:id", async (req: Request, res: Response) => {
   }
 });
 
+// Health check endpoint
+router.get("/api/health", (req: Request, res: Response) => {
+  res.json({ 
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    port: process.env.PORT
+  });
+});
+
 export async function registerRoutes(app: any) {
   const http = await import("http");
   const server = http.createServer(app);

@@ -38,6 +38,10 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    console.log("Starting server...");
+    console.log("NODE_ENV:", process.env.NODE_ENV);
+    console.log("PORT:", process.env.PORT);
+    
     const server = await registerRoutes(app);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -52,8 +56,10 @@ app.use((req, res, next) => {
     // setting up all the other routes so the catch-all route
     // doesn't interfere with the other routes
     if (app.get("env") === "development") {
+      console.log("Setting up Vite for development...");
       await setupVite(app, server);
     } else {
+      console.log("Setting up static file serving for production...");
       serveStatic(app);
     }
 
@@ -62,8 +68,11 @@ app.use((req, res, next) => {
     // this serves both the API and the client.
     // It is the only port that is not firewalled.
     const port = parseInt(process.env.PORT || '5000', 10);
+    console.log("Attempting to listen on port:", port);
+    
     server.listen(port, "0.0.0.0", () => {
       log(`serving on port ${port}`);
+      console.log("✓ Server successfully started and listening");
     });
 
     server.on("error", (err: any) => {
@@ -71,6 +80,7 @@ app.use((req, res, next) => {
     });
   } catch (error) {
     console.error("Failed to start server:", error);
+    console.error("Stack:", (error as any)?.stack);
     process.exit(1);
   }
 })();
