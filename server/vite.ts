@@ -1,10 +1,15 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
+
+// ES Module __dirname support
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const viteLogger = createLogger();
 
@@ -68,18 +73,31 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   // In production, files are in dist/public after building
-  const distPath = path.resolve(process.cwd(), "dist", "public");
+  const cwd = process.cwd();
+  const distPath = path.resolve(cwd, "dist", "public");
+
+  console.log("DEBUG: Current Working Directory:", cwd);
+  console.log("DEBUG: Looking for dist at:", distPath);
+  console.log("DEBUG: Dist exists?", fs.existsSync(distPath));
 
   if (!fs.existsSync(distPath)) {
+    console.error("ERROR: Build directory not found!");
+    console.error("Available in cwd:", fs.readdirSync(cwd));
+    
     throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first with 'npm run build'`,
+      `Could not find the build directory: ${distPath}\n` +
+      `Make sure to run 'npm run build' before deploying.\n` +
+      `Current working directory: ${cwd}`
     );
   }
 
+  console.log("DEBUG: Serving static files from:", distPath);
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    const indexPath = path.resolve(distPath, "index.html");
+    console.log("DEBUG: Serving index.html from:", indexPath);
+    res.sendFile(indexPath);
   });
 }
