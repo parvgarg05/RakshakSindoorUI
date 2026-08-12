@@ -160,7 +160,7 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
               🔒 This is a demonstration frontend. Not for real-world secure communications.
             </p>
             <p>
-              Rakshak Sindoor © 2024 - Secure Emergency Communication Platform
+              Rakshak ResQ © 2024 - Secure Emergency Communication Platform
             </p>
           </div>
         </footer>

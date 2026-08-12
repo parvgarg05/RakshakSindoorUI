@@ -61,7 +61,7 @@ export default function SignupPage({ role, onBack, onSignupSuccess, onSwitchToLo
 
     toast({
       title: 'Account Created!',
-      description: `Welcome to Rakshak Sindoor, ${displayName}!`,
+      description: `Welcome to Rakshak ResQ, ${displayName}!`,
     });
 
     onSignupSuccess();
