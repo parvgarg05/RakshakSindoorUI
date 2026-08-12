@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import EncryptedMessage from '@/components/EncryptedMessage';
 import { encryptMessage } from '@/lib/encryption';
 import { messageStore } from '@/lib/storage';
+import { getSocket } from '@/lib/socket';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -95,6 +96,13 @@ export default function CitizenAlertManager() {
       setAlerts(alerts.filter(a => a.id !== alertId));
       
       window.dispatchEvent(new CustomEvent('govchat:updated'));
+      try {
+        const bc = new BroadcastChannel('govchat');
+        bc.postMessage({ type: 'alert-deleted', id: alertId, ts: Date.now() });
+        bc.close();
+      } catch (e) {}
+      try { localStorage.setItem('govchat_updated', String(Date.now())); } catch (e) {}
+      try { getSocket().emit('govchat:delete', { id: alertId }); } catch (e) {}
       
       toast({
         title: 'Alert Deleted',
@@ -211,6 +219,13 @@ export default function CitizenAlertManager() {
 
     await messageStore.setItem(`govresponse_${id}`, responseData);
     setResponses([...responses, responseData]);
+    try {
+      const bc = new BroadcastChannel('govchat');
+      bc.postMessage({ type: 'govresponse', id, alertId: selectedAlert?.id, ts: Date.now() });
+      bc.close();
+    } catch (e) {}
+    try { localStorage.setItem('govchat_updated', String(Date.now())); } catch (e) {}
+    try { getSocket().emit('govresponse:create', responseData); } catch (e) {}
     setNewResponse('');
     setIsSending(false);
 

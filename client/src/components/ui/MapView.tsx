@@ -160,12 +160,23 @@ export function MapView({
     };
   }, [enableLocationPicker, onLocationSelect, showUserLocation]); // Run when dependencies change
 
-  // Update map center when center prop changes
+  // Update map center when the actual target values change.
+  // Using the array reference causes the map to reset on every parent re-render,
+  // which forces the zoom level back to the default value even when the user is trying to zoom out.
   useEffect(() => {
-    if (mapRef.current) {
+    if (!mapRef.current) return;
+
+    const currentCenter = mapRef.current.getCenter();
+    const currentZoom = mapRef.current.getZoom();
+
+    const centerChanged =
+      Math.abs(currentCenter.lat - center[0]) > 1e-9 ||
+      Math.abs(currentCenter.lng - center[1]) > 1e-9;
+
+    if (centerChanged || currentZoom !== zoom) {
       mapRef.current.setView(center, zoom);
     }
-  }, [center, zoom]);
+  }, [center[0], center[1], zoom]);
 
   // Update markers when markers prop changes
   useEffect(() => {

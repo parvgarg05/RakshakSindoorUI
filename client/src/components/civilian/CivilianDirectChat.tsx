@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { messageStore } from '@/lib/storage';
+import { getSocket } from '@/lib/socket';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -160,10 +161,19 @@ export default function CivilianDirectChat() {
 
     try {
       await messageStore.setItem(`civilian_reply_${id}`, replyData);
-      
+
       // Trigger update events
       window.dispatchEvent(new CustomEvent('civilian-reply:updated'));
       window.dispatchEvent(new CustomEvent('govchat:updated'));
+
+      // Notify other tabs/windows and other devices via Socket.IO
+      try {
+        const bc = new BroadcastChannel('govchat');
+        bc.postMessage({ type: 'civilian-reply', id, ts: Date.now() });
+        bc.close();
+      } catch (e) {}
+      try { localStorage.setItem('govchat_updated', String(Date.now())); } catch (e) {}
+      try { getSocket().emit('civilian:reply', replyData); } catch (e) {}
       
       setReplyText('');
       toast({

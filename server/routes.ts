@@ -408,13 +408,13 @@ router.get("/api/zones/nearest", async (req: Request, res: Response) => {
     const userLat = parseFloat(lat as string);
     const userLon = parseFloat(lon as string);
 
-    let zonesQuery = db.select().from(evacuationZones);
-    
-    if (type && type !== "all") {
-      zonesQuery = zonesQuery.where(eq(evacuationZones.type, type as string));
-    }
-
-    const allZones = await zonesQuery;
+    const allZones =
+      type && type !== "all"
+        ? await db
+            .select()
+            .from(evacuationZones)
+            .where(eq(evacuationZones.type, type as string))
+        : await db.select().from(evacuationZones);
 
     if (allZones.length === 0) {
       return res.status(404).json({ error: "No zones found" });
@@ -422,10 +422,15 @@ router.get("/api/zones/nearest", async (req: Request, res: Response) => {
 
     // Calculate distances and find nearest
     const zonesWithDistance = allZones.map((zone: any) => {
+      const location = zone.location as {
+        latitude: number;
+        longitude: number;
+      };
+
       const lat1 = userLat * (Math.PI / 180);
-      const lat2 = zone.location.latitude * (Math.PI / 180);
-      const deltaLat = (zone.location.latitude - userLat) * (Math.PI / 180);
-      const deltaLon = (zone.location.longitude - userLon) * (Math.PI / 180);
+      const lat2 = location.latitude * (Math.PI / 180);
+      const deltaLat = (location.latitude - userLat) * (Math.PI / 180);
+      const deltaLon = (location.longitude - userLon) * (Math.PI / 180);
 
       const a =
         Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
@@ -514,9 +519,14 @@ router.put("/api/zones/:id", async (req: Request, res: Response) => {
         return res.status(404).json({ error: "Zone not found" });
       }
 
+      const location = zone.location as {
+        latitude: number;
+        longitude: number;
+      };
+
       updates.location = {
-        latitude: updates.latitude ?? zone.location.latitude,
-        longitude: updates.longitude ?? zone.location.longitude,
+        latitude: updates.latitude ?? location.latitude,
+        longitude: updates.longitude ?? location.longitude,
       };
       delete updates.latitude;
       delete updates.longitude;
@@ -581,9 +591,37 @@ router.get("/api/health", (req: Request, res: Response) => {
 export async function registerRoutes(app: any) {
   const http = await import("http");
   const server = http.createServer(app);
-  
+
+  // Setup Socket.IO for global realtime relay
+  try {
+    const { Server } = await import('socket.io');
+    const io = new Server(server, {
+      cors: { origin: '*' },
+    });
+
+    io.on('connection', (socket) => {
+      socket.on('govchat:create', (data) => {
+        io.emit('govchat:create', data);
+      });
+      socket.on('govchat:delete', (data) => {
+        io.emit('govchat:delete', data);
+      });
+      socket.on('govchat:clear', () => {
+        io.emit('govchat:clear');
+      });
+      socket.on('govresponse:create', (data) => {
+        io.emit('govresponse:create', data);
+      });
+      socket.on('civilian:reply', (data) => {
+        io.emit('civilian:reply', data);
+      });
+    });
+  } catch (e) {
+    console.warn('Socket.IO not available:', e);
+  }
+
   app.use(router);
-  
+
   return server;
 }
 

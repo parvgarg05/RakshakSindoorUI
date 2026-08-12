@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import CivilianSidebar from '@/components/CivilianSidebar';
 import NotificationBadge from '@/components/NotificationBadge';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import NotificationCenter from '@/components/NotificationCenter';
 import CivilianMapView from '@/components/civilian/CivilianMapView';
 import CivilianChannel from '@/components/civilian/CivilianChannel';
@@ -229,6 +230,7 @@ export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) 
             <div className="flex items-center gap-2">
               <NotificationBadge type="alert" count={notificationCount} onClick={() => setShowNotifications(true)} />
               <NotificationBadge type="chat" count={5} onClick={() => navigate('/civilian/chat')} />
+              <ThemeToggle />
               <LanguageSwitcher />
             </div>
           </header>

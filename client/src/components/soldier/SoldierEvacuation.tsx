@@ -3,6 +3,14 @@ import { Shield, Plus, Edit2, Trash2, MapPin, Users, AlertCircle } from 'lucide-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useZones, type EvacuationZone, type CreateZonePayload } from '@/hooks/useZones';
 import { useToast } from '@/hooks/use-toast';
 
@@ -120,102 +128,107 @@ export default function SoldierEvacuation() {
         </div>
 
         {showForm && (
-          <Card className="border-2 border-primary">
-          <CardHeader>
-            <CardTitle>{editingId ? 'Edit Zone' : 'Create New Evacuation Zone'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Zone Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="e.g., Safe Zone Alpha"
-                    data-testid="input-zone-name"
-                  />
+          <Card className="border-2 border-primary bg-card">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">
+                {editingId ? 'Edit Zone' : 'Create New Evacuation Zone'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Zone Name *</label>
+                    <Input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="mt-1 bg-background text-foreground placeholder:text-muted-foreground"
+                      placeholder="e.g., Safe Zone Alpha"
+                      data-testid="input-zone-name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Type *</label>
+                    <Select
+                      value={formData.type}
+                      onValueChange={(value) => setFormData({ ...formData, type: value as any })}
+                    >
+                      <SelectTrigger className="mt-1 bg-background text-foreground border-input" data-testid="select-zone-type">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="safe">Safe Zone</SelectItem>
+                        <SelectItem value="medical">Medical Hub</SelectItem>
+                        <SelectItem value="evacuation">Evacuation Point</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Capacity *</label>
+                    <Input
+                      type="number"
+                      required
+                      min="1"
+                      value={formData.capacity}
+                      onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })}
+                      className="mt-1 bg-background text-foreground placeholder:text-muted-foreground"
+                      placeholder="Number of people"
+                      data-testid="input-zone-capacity"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Description</label>
+                    <Input
+                      type="text"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="mt-1 bg-background text-foreground placeholder:text-muted-foreground"
+                      placeholder="Additional details"
+                      data-testid="input-zone-description"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Latitude</label>
+                    <Input
+                      type="number"
+                      step="0.0001"
+                      value={formData.latitude}
+                      onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) || 0 })}
+                      className="mt-1 bg-background text-foreground placeholder:text-muted-foreground"
+                      data-testid="input-zone-latitude"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground">Longitude</label>
+                    <Input
+                      type="number"
+                      step="0.0001"
+                      value={formData.longitude}
+                      onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) || 0 })}
+                      className="mt-1 bg-background text-foreground placeholder:text-muted-foreground"
+                      data-testid="input-zone-longitude"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium">Type *</label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                    className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    data-testid="select-zone-type"
-                  >
-                    <option value="safe">Safe Zone</option>
-                    <option value="medical">Medical Hub</option>
-                    <option value="evacuation">Evacuation Point</option>
-                  </select>
+                <div className="flex gap-3 pt-4">
+                  <Button type="submit" variant="default" data-testid="button-save-zone">
+                    {editingId ? 'Update Zone' : 'Create Zone'}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={handleCancel} data-testid="button-cancel-zone">
+                    Cancel
+                  </Button>
                 </div>
-
-                <div>
-                  <label className="text-sm font-medium">Capacity *</label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.capacity}
-                    onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) })}
-                    className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Number of people"
-                    data-testid="input-zone-capacity"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Description</label>
-                  <input
-                    type="text"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Additional details"
-                    data-testid="input-zone-description"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Latitude</label>
-                  <input
-                    type="number"
-                    step="0.0001"
-                    value={formData.latitude}
-                    onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
-                    className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    data-testid="input-zone-latitude"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Longitude</label>
-                  <input
-                    type="number"
-                    step="0.0001"
-                    value={formData.longitude}
-                    onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
-                    className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    data-testid="input-zone-longitude"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button type="submit" variant="default" data-testid="button-save-zone">
-                  {editingId ? 'Update Zone' : 'Create Zone'}
-                </Button>
-                <Button type="button" variant="outline" onClick={handleCancel} data-testid="button-cancel-zone">
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              </form>
+            </CardContent>
+          </Card>
         )}
       </div>
 

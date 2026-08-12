@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import SoldierSidebar from '@/components/SoldierSidebar';
 import NotificationBadge from '@/components/NotificationBadge';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import NotificationCenter from '@/components/NotificationCenter';
 import SoldierMapView from '@/components/soldier/SoldierMapView';
 import SoldierAlerts from '@/components/soldier/SoldierAlerts';
@@ -153,6 +154,7 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
             <div className="flex items-center gap-2">
               <NotificationBadge type="alert" count={notificationCount} onClick={() => setShowNotifications(true)} />
               <NotificationBadge type="chat" count={5} onClick={() => navigate('/soldier/chat')} />
+              <ThemeToggle />
               <LanguageSwitcher />
             </div>
           </header>

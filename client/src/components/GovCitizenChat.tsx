@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import type { Socket } from 'socket.io-client';
 import { Send, Shield, AlertTriangle, MessageSquare, MapPin, Loader, ChevronDown, Trash2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import EncryptedMessage from '@/components/EncryptedMessage';
 import { encryptMessage } from '@/lib/encryption';
 import { messageStore } from '@/lib/storage';
+import { getSocket, closeSocket } from '@/lib/socket';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -114,6 +116,7 @@ export default function GovCitizenChat({ role }: GovCitizenChatProps) {
   const [selectedCity, setSelectedCity] = useState('');
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const locationWatchRef = useRef<number | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   const handleReset = async () => {
     if (!confirm('Are you sure you want to clear all chat messages? This action cannot be undone.')) {
@@ -143,8 +146,15 @@ export default function GovCitizenChat({ role }: GovCitizenChatProps) {
       setLocationSource('current');
       setShowSuggestions(false);
 
-      // Dispatch update event
+      // Dispatch update event and notify other tabs
       window.dispatchEvent(new CustomEvent('govchat:updated'));
+      try {
+        const bc = new BroadcastChannel('govchat');
+        bc.postMessage({ type: 'cleared', ts: Date.now() });
+        bc.close();
+      } catch (e) {}
+      try { localStorage.setItem('govchat_updated', String(Date.now())); } catch (e) {}
+      try { socketRef.current?.emit('govchat:clear'); } catch (e) {}
 
       toast({
         title: 'Chats Cleared',
@@ -178,10 +188,17 @@ export default function GovCitizenChat({ role }: GovCitizenChatProps) {
 
       // Update messages list
       setMessages(messages.filter(m => m.id !== messageId));
-      
-      // Dispatch update event
+
+      // Dispatch update event and notify other tabs
       window.dispatchEvent(new CustomEvent('govchat:updated'));
-      
+      try {
+        const bc = new BroadcastChannel('govchat');
+        bc.postMessage({ type: 'deleted', id: messageId, ts: Date.now() });
+        bc.close();
+      } catch (e) {}
+      try { localStorage.setItem('govchat_updated', String(Date.now())); } catch (e) {}
+      try { socketRef.current?.emit('govchat:delete', { id: messageId }); } catch (e) {}
+
       toast({
         title: 'Message Deleted',
         description: 'The message has been successfully deleted.',
@@ -210,6 +227,61 @@ export default function GovCitizenChat({ role }: GovCitizenChatProps) {
     loadMessages();
     const handleUpdate = () => loadMessages();
     window.addEventListener('govchat:updated', handleUpdate);
+
+    // Cross-tab listeners: storage event (fallback) and BroadcastChannel
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'govchat_updated') loadMessages();
+    };
+    window.addEventListener('storage', handleStorage);
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('govchat');
+      bc.onmessage = (ev) => {
+        if (ev?.data?.type) loadMessages();
+      };
+    } catch (e) {
+      bc = null;
+    }
+
+    // Socket.IO realtime (global across devices)
+    try {
+      const socket = getSocket();
+      socketRef.current = socket;
+      socket.on('govchat:create', async (data: any) => {
+        if (data?.id) {
+          await messageStore.setItem(`govchat_${data.id}`, data);
+          loadMessages();
+        }
+      });
+      socket.on('govchat:delete', async (data: any) => {
+        if (data?.id) {
+          await messageStore.removeItem(`govchat_${data.id}`);
+          loadMessages();
+        }
+      });
+      socket.on('govchat:clear', async () => {
+        const keys: string[] = [];
+        await messageStore.iterate((v: any, k: string) => { if (k?.startsWith('govchat_')) keys.push(k); });
+        for (const k of keys) await messageStore.removeItem(k);
+        loadMessages();
+      });
+      socket.on('govresponse:create', async (data: any) => {
+        if (data?.id) {
+          await messageStore.setItem(`govresponse_${data.id}`, data);
+          loadMessages();
+        }
+      });
+      socket.on('civilian:reply', async (data: any) => {
+        if (data?.id) {
+          await messageStore.setItem(`civilian_reply_${data.id}`, data);
+          loadMessages();
+        }
+      });
+    } catch (e) {
+      // socket connection failed
+    }
+
     const intervalId = window.setInterval(loadMessages, 3000);
 
     // Get user location on mount
@@ -233,6 +305,14 @@ export default function GovCitizenChat({ role }: GovCitizenChatProps) {
 
     return () => {
       window.removeEventListener('govchat:updated', handleUpdate);
+      window.removeEventListener('storage', handleStorage);
+      if (bc) {
+        try { bc.close(); } catch (e) {}
+      }
+      if (socketRef.current) {
+        try { closeSocket(); } catch (e) {}
+        socketRef.current = null;
+      }
       window.clearInterval(intervalId);
       if (locationWatchRef.current !== null) {
         navigator.geolocation.clearWatch(locationWatchRef.current);
@@ -325,6 +405,15 @@ export default function GovCitizenChat({ role }: GovCitizenChatProps) {
     setSelectedCity('');
     setIsSending(false);
     window.dispatchEvent(new CustomEvent('govchat:updated'));
+
+    // Notify other tabs/windows about the new govchat message
+    try {
+      const bc = new BroadcastChannel('govchat');
+      bc.postMessage({ type: 'updated', id, ts: Date.now() });
+      bc.close();
+    } catch (e) {}
+    try { localStorage.setItem('govchat_updated', String(Date.now())); } catch (e) {}
+    try { socketRef.current?.emit('govchat:create', messageData); } catch (e) {}
 
     // Broadcast attack report to nearby civilians
     if (messageType === 'attack' && role === 'civilian') {

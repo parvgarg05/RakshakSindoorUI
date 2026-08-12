@@ -6,6 +6,7 @@ import StatsCard from '@/components/StatsCard';
 import ActivityChart from '@/components/ActivityChart';
 import EncryptedMessage from '@/components/EncryptedMessage';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBadge from '@/components/NotificationBadge';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import { useApp } from '@/contexts/AppContext';
@@ -55,6 +56,7 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
             </Button>
             <NotificationBadge type="alert" count={3} onClick={() => setShowNotifications(true)} />
             <NotificationBadge type="chat" count={5} />
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
         </div>
