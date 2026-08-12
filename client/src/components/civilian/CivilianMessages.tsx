@@ -63,7 +63,7 @@ export default function CivilianMessages() {
                   </p>
                 </div>
                 <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-                  <span>Secured by Rakshak Sindoor</span>
+                  <span>Secured by Rakshak ResQ</span>
                   <span>{new Date(msg.timestamp).toLocaleString()}</span>
                 </div>
               </CardContent>

@@ -1,4 +1,4 @@
-# Rakshak Sindoor - Design Guidelines
+# Rakshak ResQ - Design Guidelines
 
 ## Design Approach
 

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: rakshak-sindoor-ui
+    name: rakshak-ResQ-ui
     env: node
     plan: free
     buildCommand: npm install && npm run build

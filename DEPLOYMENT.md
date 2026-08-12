@@ -1,4 +1,4 @@
-# Rakshak Sindoor - Deployment Guide
+# Rakshak ResQ - Deployment Guide
 
 ## Build Status ✅
 The project has been successfully built and is ready for deployment.
@@ -47,7 +47,7 @@ node dist/index.js
 4. **For persistent running, use PM2:**
 ```bash
 npm install -g pm2
-pm2 start dist/index.js --name "rakshak-sindoor"
+pm2 start dist/index.js --name "rakshak-ResQ"
 pm2 startup
 pm2 save
 ```
@@ -75,11 +75,11 @@ CMD ["node", "dist/index.js"]
 
 #### Build and run Docker image
 ```bash
-docker build -t rakshak-sindoor:latest .
+docker build -t rakshak-ResQ:latest .
 docker run -d -p 3000:3000 \
   --env NODE_ENV=production \
   --env PORT=3000 \
-  rakshak-sindoor:latest
+  rakshak-ResQ:latest
 ```
 
 ---

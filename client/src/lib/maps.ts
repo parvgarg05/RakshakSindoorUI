@@ -49,7 +49,7 @@ export async function searchLocation(
 
   const {
     limit = 5,
-    countrycodes = 'in', // Default to India for Rakshak Sindoor
+    countrycodes = 'in', // Default to India for Rakshak ResQ
     viewbox,
     bounded = false,
   } = options;
@@ -75,7 +75,7 @@ export async function searchLocation(
       `https://nominatim.openstreetmap.org/search?${params.toString()}`,
       {
         headers: {
-          'User-Agent': 'RakshakSindoor/1.0', // Required by Nominatim usage policy
+          'User-Agent': 'RakshakResQ/1.0', // Required by Nominatim usage policy
         },
       }
     );
@@ -114,7 +114,7 @@ export async function reverseGeocode(
       `https://nominatim.openstreetmap.org/reverse?${params.toString()}`,
       {
         headers: {
-          'User-Agent': 'RakshakSindoor/1.0',
+          'User-Agent': 'RakshakResQ/1.0',
         },
       }
     );

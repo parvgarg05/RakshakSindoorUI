@@ -1,5 +1,5 @@
-// Rakshak Sindoor Service Worker for Offline-First PWA
-const CACHE_NAME = 'rakshak-sindoor-v2';
+// Rakshak ResQ Service Worker for Offline-First PWA
+const CACHE_NAME = 'rakshak-ResQ-v2';
 const urlsToCache = [
   '/',
   '/index.html',

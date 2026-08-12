@@ -86,7 +86,7 @@ export default function CivilianNotifications() {
           const demoNotification = {
             id: 'demo_001',
             type: 'general',
-            title: '📢 Welcome to Rakshak Sindoor',
+            title: '📢 Welcome to Rakshak ResQ',
             message: 'This is a demo notification. Check your notification center for updates and alerts.',
             timestamp: new Date().toISOString(),
             source: 'system',

@@ -1,6 +1,6 @@
 export const translations = {
   en: {
-    appName: "Rakshak Sindoor",
+    appName: "Rakshak ResQ",
     soldierPortal: "Government Portal",
     governmentPortal: "Government Portal",
     civilianPortal: "Civilian Portal",
@@ -120,7 +120,7 @@ export const translations = {
     needHelp: "مدد درکار ہے",
   },
   ks: {
-    appName: "Rakshak Sindoor",
+    appName: "Rakshak ResQ",
     soldierPortal: "Government Portal",
     governmentPortal: "Government Portal",
     civilianPortal: "Civilian Portal",

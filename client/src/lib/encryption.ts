@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js';
 
-const DEFAULT_KEY = 'RAKSHAK_SINDOOR_DEMO_KEY_2024';
+const DEFAULT_KEY = 'RAKSHAK_ResQ_DEMO_KEY_2024';
 
 export function encryptMessage(message: string, key: string = DEFAULT_KEY): string {
   const encrypted = CryptoJS.AES.encrypt(message, key).toString();
