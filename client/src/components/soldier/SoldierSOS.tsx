@@ -138,13 +138,13 @@ export default function SoldierSOS() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto h-full bg-gray-50 overflow-y-auto">
+    <div className="p-6 max-w-4xl mx-auto h-full bg-background text-foreground overflow-y-auto">
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <MapPin className="h-8 w-8 text-red-600" />
-            <h1 className="text-3xl font-bold text-gray-900">SOS & Hotspots</h1>
+            <h1 className="text-3xl font-bold text-foreground">SOS & Hotspots</h1>
           </div>
           <div className="flex gap-3">
             <Button 
@@ -168,47 +168,47 @@ export default function SoldierSOS() {
         </div>
 
         {/* Input Form Section */}
-        <Card className="bg-white border border-gray-200">
+        <Card className="border border-border bg-card text-card-foreground">
           <CardHeader>
-            <CardTitle className="text-lg">Create New SOS Hotspot</CardTitle>
+            <CardTitle className="text-lg text-foreground">Create New SOS Hotspot</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Label/Description</label>
+                <label className="mb-1 block text-sm font-medium text-foreground">Label/Description</label>
                 <input
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500"
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                   placeholder="e.g., Bridge Collapse - Sector 7"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                <label className="mb-1 block text-sm font-medium text-foreground">Latitude</label>
                 <input
                   type="number"
                   step="0.0001"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500"
                   value={latitude}
                   onChange={(e) => setLatitude(parseFloat(e.target.value))}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                <label className="mb-1 block text-sm font-medium text-foreground">Longitude</label>
                 <input
                   type="number"
                   step="0.0001"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500"
                   value={longitude}
                   onChange={(e) => setLongitude(parseFloat(e.target.value))}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Civilians Count</label>
+                <label className="mb-1 block text-sm font-medium text-foreground">Civilians Count</label>
                 <input
                   type="number"
                   min={1}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500"
                   value={civilians}
                   onChange={(e) => setCivilians(Number(e.target.value))}
                 />
@@ -220,31 +220,31 @@ export default function SoldierSOS() {
 
       {/* Hotspots List Section */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Active Hotspots ({hotspots.length})</h2>
+        <h2 className="mb-4 text-xl font-bold text-foreground">Active Hotspots ({hotspots.length})</h2>
         <div className="grid gap-4">
           {hotspots.length === 0 ? (
-            <Card className="bg-white">
+            <Card className="border border-border bg-card text-card-foreground">
               <CardContent className="py-8 text-center">
-                <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No active SOS hotspots. Create one to get started.</p>
+                <MapPin className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+                <p className="text-muted-foreground">No active SOS hotspots. Create one to get started.</p>
               </CardContent>
             </Card>
           ) : (
             hotspots.map((hotspot) => (
-              <Card key={hotspot.id} className="bg-white hover:shadow-md transition-shadow" data-testid={`sos-${hotspot.id}`}>
+              <Card key={hotspot.id} className="border border-border bg-card text-card-foreground transition-shadow hover:shadow-md" data-testid={`sos-${hotspot.id}`}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base text-gray-900">{hotspot.location}</CardTitle>
+                    <CardTitle className="text-base text-foreground">{hotspot.location}</CardTitle>
                     <Badge variant={hotspot.status === 'active' ? 'destructive' : 'secondary'}>
                       {hotspot.status.toUpperCase()}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-700"><span className="font-medium">{hotspot.civilians}</span> civilians affected</p>
-                      <span className="text-xs text-gray-500">{hotspot.time}</span>
+                      <p className="text-sm text-foreground"><span className="font-medium">{hotspot.civilians}</span> civilians affected</p>
+                      <span className="text-xs text-muted-foreground">{hotspot.time}</span>
                     </div>
                   </div>
                 </CardContent>
