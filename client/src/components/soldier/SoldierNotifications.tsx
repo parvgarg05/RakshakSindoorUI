@@ -78,14 +78,14 @@ export default function SoldierNotifications() {
   };
 
   return (
-    <div className="h-full w-full p-6 bg-gray-50 overflow-y-auto">
+    <div className="h-full w-full overflow-y-auto bg-background p-6 text-foreground">
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-6 max-w-4xl mx-auto">
+      <div className="mx-auto mb-6 flex max-w-4xl items-center justify-between">
         <div className="flex items-center gap-3">
           <Bell className="h-8 w-8 text-blue-600" />
           <div>
-             <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-             <p className="text-gray-500">Manage system alerts and priorities</p>
+             <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
+             <p className="text-muted-foreground">Manage system alerts and priorities</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -104,13 +104,13 @@ export default function SoldierNotifications() {
         {notifications.map((notification) => (
           <Card 
             key={notification.id} 
-            className={`transition-all duration-200 border ${
+            className={`border transition-all duration-200 ${
               notification.read 
-                ? 'bg-white/60 opacity-70' 
-                : 'bg-white border-l-4 border-l-blue-500 shadow-md transform hover:-translate-y-0.5'
+                ? 'border-border bg-card/80 opacity-70' 
+                : 'border-l-4 border-l-blue-500 bg-card shadow-md hover:-translate-y-0.5'
             }`}
           >
-            <CardContent className="p-4 flex gap-4 items-start">
+            <CardContent className="flex items-start gap-4 p-4">
               {/* Icon Logic based on type */}
               <div className={`mt-1 p-2 rounded-full shrink-0 ${
                 notification.type === 'threat' ? 'bg-red-100 text-red-600' :
@@ -124,17 +124,17 @@ export default function SoldierNotifications() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                  <h4 className={`font-semibold text-lg ${notification.read ? 'text-gray-600' : 'text-gray-900'}`}>
+                <div className="flex items-start justify-between">
+                  <h4 className={`text-lg font-semibold ${notification.read ? 'text-muted-foreground' : 'text-foreground'}`}>
                     {notification.title}
                   </h4>
-                  <span className="flex items-center text-xs text-gray-500 whitespace-nowrap ml-2">
+                  <span className="ml-2 flex items-center whitespace-nowrap text-xs text-muted-foreground">
                     <Clock className="mr-1 h-3 w-3" />
                     {notification.timestamp}
                   </span>
                 </div>
                 
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                   {notification.message}
                 </p>
 
@@ -144,7 +144,7 @@ export default function SoldierNotifications() {
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="h-8 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium"
+                      className="h-8 px-2 font-medium text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/30"
                       onClick={() => markAsRead(notification.id)}
                     >
                       Mark as read
