@@ -6,9 +6,9 @@ export default {
   theme: {
     extend: {
       borderRadius: {
-        lg: ".5625rem", /* 9px */
-        md: ".375rem", /* 6px */
-        sm: ".1875rem", /* 3px */
+        lg: "1.25rem",
+        md: "1rem",
+        sm: "0.75rem",
       },
       colors: {
         // Flat / base colors (regular buttons)
@@ -83,10 +83,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "Noto Sans", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
-        tactical: ["Rajdhani", "sans-serif"],
+        tactical: ["var(--font-sans)", "Segoe UI", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

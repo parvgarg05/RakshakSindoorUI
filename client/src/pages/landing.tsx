@@ -34,11 +34,11 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
   const emergencyMessage = "ALERT: Evacuation required in Sector 7. Move to Safe Zone Alpha immediately.";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <OfflineIndicator />
       
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+        <div className="container mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <Shield className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-tactical font-bold">
@@ -64,13 +64,13 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
 
       <main className="container mx-auto px-4 py-8">
         <section className="mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card 
-              className="p-8 hover-elevate active-elevate-2 cursor-pointer bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20"
+              className="cursor-pointer border-2 border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-8 hover-elevate active-elevate-2"
               onClick={() => onSelectPortal('government')}
               data-testid="card-government-portal"
             >
-              <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex flex-col items-center gap-4 text-center">
                 <Shield className="h-24 w-24 text-primary" />
                 <h2 className="text-3xl font-tactical font-bold">
                   {getTranslation(language, 'governmentPortal')}
@@ -86,11 +86,11 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
             </Card>
 
             <Card 
-              className="p-8 hover-elevate active-elevate-2 cursor-pointer bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-accent/20"
+              className="cursor-pointer border-2 border-accent/20 bg-gradient-to-br from-accent/10 to-accent/5 p-8 hover-elevate active-elevate-2"
               onClick={() => onSelectPortal('civilian')}
               data-testid="card-civilian-portal"
             >
-              <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex flex-col items-center gap-4 text-center">
                 <Users className="h-24 w-24 text-primary" />
                 <h2 className="text-3xl font-tactical font-bold">
                   {getTranslation(language, 'civilianPortal')}
@@ -108,7 +108,7 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
         </section>
 
         <section className="mb-12">
-          <h3 className="text-2xl font-tactical font-bold mb-4">
+          <h3 className="mb-4 text-2xl font-tactical font-bold">
             {getTranslation(language, 'emergencyChannel')}
           </h3>
           <EncryptedMessage 
@@ -120,8 +120,8 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
         </section>
 
         <section className="mb-12">
-          <h3 className="text-2xl font-tactical font-bold mb-6">Live Statistics</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <h3 className="mb-6 text-2xl font-tactical font-bold">Live Statistics</h3>
+          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatsCard 
               title={getTranslation(language, 'activeAlerts')}
               value={3}
@@ -154,7 +154,7 @@ export default function LandingPage({ onSelectPortal }: LandingPageProps) {
           <ActivityChart data={activityData} title="24h Activity Overview" />
         </section>
 
-        <footer className="border-t pt-8 mt-12">
+        <footer className="mt-12 border-t pt-8">
           <div className="text-center text-sm text-muted-foreground">
             <p className="mb-2">
               🔒 This is a demonstration frontend. Not for real-world secure communications.

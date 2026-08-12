@@ -147,10 +147,9 @@ export default function SoldierDashboard({ onLogout }: SoldierDashboardProps) {
       <div className="flex h-screen w-full overflow-hidden bg-background">
         <SoldierSidebar onLogout={onLogout} />
         
-        {/* CHANGE 2: Flex column that takes all remaining width/height */}
         <div className="flex flex-col flex-1 h-full min-w-0 overflow-hidden">
-          <header className="flex h-16 shrink-0 items-center justify-between px-4 border-b bg-background/95 backdrop-blur z-20">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
+          <header className="z-20 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card/90 px-4 backdrop-blur-sm">
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="rounded-[1rem] border border-border bg-background text-foreground hover:bg-accent/10" />
             <div className="flex items-center gap-2">
               <NotificationBadge type="alert" count={notificationCount} onClick={() => setShowNotifications(true)} />
               <NotificationBadge type="chat" count={5} onClick={() => navigate('/soldier/chat')} />

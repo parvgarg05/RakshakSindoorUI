@@ -222,11 +222,11 @@ export default function CivilianDashboard({ onLogout }: CivilianDashboardProps) 
 
   return (
     <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
+      <div className="flex h-screen w-full bg-background">
         <CivilianSidebar onLogout={onLogout} />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between p-3 border-b bg-background/95 backdrop-blur">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
+          <header className="flex items-center justify-between border-b border-border bg-card/90 p-3 backdrop-blur-sm">
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="rounded-[1rem] border border-border bg-background text-foreground hover:bg-accent/10" />
             <div className="flex items-center gap-2">
               <NotificationBadge type="alert" count={notificationCount} onClick={() => setShowNotifications(true)} />
               <NotificationBadge type="chat" count={5} onClick={() => navigate('/civilian/chat')} />

@@ -44,12 +44,14 @@ export default function CivilianSidebar({ onLogout }: CivilianSidebarProps) {
 
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="p-4 border-b">
-        <div className="flex items-center gap-3">
-          <Users className="h-8 w-8 text-primary" />
+      <SidebarHeader className="border-b border-border bg-card/80 p-4">
+        <div className="flex items-center gap-3 rounded-[1.25rem] bg-sidebar-accent/80 p-2.5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-primary text-primary-foreground shadow-sm">
+            <Users className="h-5 w-5" />
+          </div>
           <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-lg truncate">Civilian Portal</h2>
-            <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
+            <h2 className="truncate text-lg font-bold tracking-[-0.03em] text-foreground">Civilian Portal</h2>
+            <p className="truncate text-xs text-muted-foreground">@{user?.username}</p>
           </div>
         </div>
       </SidebarHeader>
